@@ -1,0 +1,68 @@
+name: Deploy docs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Allow running this workflow by hand from the Actions tab.
+  workflow_dispatch:
+
+# Grant GITHUB_TOKEN the permissions needed to deploy to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; do not cancel a run that is mid-deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          # Full history so VitePress can read git timestamps for "last updated".
+          fetch-depth: 0
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+
+      - name: Install dependencies
+        working-directory: docs
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "No package-lock.json found, falling back to npm install."
+            npm install
+          fi
+
+      - name: Build with VitePress
+        working-directory: docs
+        run: npm run docs:build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

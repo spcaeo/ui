@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>The VB colourway, rebuilt</title>
+<link rel="stylesheet" href="../folder-tabs.css">
+<style>
+  body { margin:0; padding:26px; background:#d4d0c8;
+         font:13px/1.5 Tahoma, "Segoe UI", system-ui, sans-serif; color:#000; }
+  /* The same six variables, set to the original control's colourway. Nothing
+     else changes — this is the whole retheming surface. */
+  .vb {
+    --tab-rail: #3d5a8f;
+    --tab-rail-fill: #6f9ad3;
+    --tab-rail-ink: #0d1a2e;
+    --tab-panel: #f5c583;
+    --tab-panel-ink: #2b1d05;
+    --tab-edge: #263a5c;
+    --tab-ring: #0d1a2e;
+    --tab-ring-on-panel: #2b1d05;
+  }
+  .win { max-width:520px; background:#ece9d8; border:2px outset #fff; padding:14px; }
+  .title { background:linear-gradient(#0a246a,#3a6ea5); color:#fff; font-weight:700;
+           padding:4px 8px; margin:-14px -14px 14px; font-size:12px; }
+  .row { display:flex; gap:10px; align-items:center; margin-bottom:9px; }
+  label { width:66px; }
+  input, select { font:inherit; padding:3px 5px; border:1px inset #b0b0b0; background:#fff; flex:1; }
+  .btn { font:inherit; padding:4px 16px; border:2px outset #f5f5f5; background:#ece9d8; }
+</style></head>
+<body>
+<div class="win">
+  <div class="title">Tab Control Test</div>
+  <div class="vb" data-folder-tabs>
+    <div class="fldr-rail" role="tablist" aria-label="Tabs">
+      <div class="fldr-scroll">
+        <button class="fldr-tab" role="tab" id="v1" aria-controls="vp1" data-state="active"   aria-selected="true">Tab 1</button>
+        <button class="fldr-tab" role="tab" id="v2" aria-controls="vp2" data-state="inactive" aria-selected="false">Tab 2</button>
+        <button class="fldr-tab" role="tab" id="v3" aria-controls="vp3" data-state="inactive" aria-selected="false" aria-disabled="true">Tab 3</button>
+        <button class="fldr-tab" role="tab" id="v4" aria-controls="vp4" data-state="inactive" aria-selected="false">Tab 4</button>
+      </div>
+      <div class="fldr-arrows">
+        <button class="fldr-arrow" data-dir="-1" tabindex="-1" aria-label="Scroll tabs left">‹</button>
+        <button class="fldr-arrow" data-dir="1"  tabindex="-1" aria-label="Scroll tabs right">›</button>
+      </div>
+    </div>
+    <div class="fldr-panel" id="vp1" role="tabpanel" aria-labelledby="v1" tabindex="0">
+      <div class="row"><label>Combo1</label><select><option>Combo1</option></select></div>
+      <div class="row"><label>Text1</label><input value="Text1"></div>
+      <div class="row"><label></label><button class="btn">Option1</button></div>
+    </div>
+    <div class="fldr-panel" id="vp2" role="tabpanel" aria-labelledby="v2" tabindex="0" hidden>Tab 2.</div>
+    <div class="fldr-panel" id="vp3" role="tabpanel" aria-labelledby="v3" tabindex="0" hidden>Tab 3.</div>
+    <div class="fldr-panel" id="vp4" role="tabpanel" aria-labelledby="v4" tabindex="0" hidden>Tab 4.</div>
+  </div>
+</div>
+<script type="module">
+  import { initFolderTabs } from "../vanilla/folder-tabs.js";
+  initFolderTabs();
+</script>
+</body></html>

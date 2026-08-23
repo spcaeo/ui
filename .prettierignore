@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+CHANGELOG.md
+
+# Generated: the script block is inlined from vanilla/folder-tabs.js
+# by tools/build-demo.mjs, so formatting it here would break `npm run check:demo`.
+demo.html
+
+# Binary screenshots
+docs/public/screenshots/

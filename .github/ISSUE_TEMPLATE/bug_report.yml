@@ -1,0 +1,78 @@
+name: Bug report
+description: Something in the folder-tabs control does not work as expected.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. The more precisely you can describe what you saw,
+        the faster this gets fixed.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the behaviour you actually saw.
+      placeholder: The active tab loses its raised edge after I press the right arrow key.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: The newly selected tab should be raised and joined to the panel.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build
+    attributes:
+      label: Which build are you using?
+      options:
+        - CSS only
+        - React
+        - Vanilla JS
+        - Docs site
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Firefox 141, Safari 18.5, Chrome 139
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Which theme does this affect?
+      options:
+        - Light
+        - Dark
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: >-
+        A link (CodePen, StackBlitz, a gist) or the smallest snippet of HTML/JS
+        that shows the problem.
+      render: html
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot (optional)
+      description: Drag an image in here if the problem is visual.
+    validations:
+      required: false

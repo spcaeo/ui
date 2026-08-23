@@ -1,0 +1,16 @@
+# Normalise all text files to LF in the repository.
+* text=auto eol=lf
+
+# Binary assets - never diff or normalise these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Treat the docs site and the demo page as documentation, not source.
+docs/** linguist-documentation
+demo.html linguist-documentation

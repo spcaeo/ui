@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/spcaeo/vb-inspired-folder-tabs/discussions
+    about: Ask a question or float an idea in GitHub Discussions before opening an issue.

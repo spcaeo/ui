@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest an addition or change to the folder-tabs control.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a small, focused control. Ideas are welcome, but the bar for new
+        surface area is high — please start with the problem, not the solution.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the situation you ran into, not the feature you have in mind.
+      placeholder: I need the tab strip to sit on the left edge instead of the top.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like it to work? Sketches and snippets help.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build
+    attributes:
+      label: Which build would this affect?
+      multiple: true
+      options:
+        - CSS only
+        - React
+        - Vanilla JS
+        - Docs site
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: colours
+    attributes:
+      label: Colour variables
+      description: >-
+        The six colour variables in `folder-tabs.css` are a measured set. Changing any
+        fill means re-measuring every contrast ratio (4.5:1 for label text, 3.0:1 for
+        the tab/rail boundary) in both themes and updating the table in the README.
+      options:
+        - label: This change would alter one or more of the six colour variables.
+          required: false
+        - label: >-
+            I understand that if it does, the pull request must include newly measured
+            contrast ratios for both light and dark themes.
+          required: false

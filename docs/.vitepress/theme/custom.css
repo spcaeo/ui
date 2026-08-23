@@ -1,0 +1,35 @@
+/*
+ * Screenshots come in light/dark pairs. Show the one matching the reader's
+ * theme — a light screenshot on a dark page is a bright rectangle that tells
+ * you nothing about how the control looks in the theme you are actually using.
+ *
+ * VitePress puts `.dark` on <html>, so both branches are stated explicitly
+ * rather than relying on a default.
+ */
+html.dark .only-light {
+  display: none;
+}
+html:not(.dark) .only-dark {
+  display: none;
+}
+
+/* Screenshots are wide strips of a UI control. A border keeps a white-panelled
+   screenshot from bleeding into a white page. */
+.vp-doc .shot img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+}
+
+.vp-doc .shot {
+  margin: 24px 0;
+}
+
+.vp-doc .shot figcaption,
+.vp-doc .shot-caption {
+  margin-top: 8px;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.5;
+}

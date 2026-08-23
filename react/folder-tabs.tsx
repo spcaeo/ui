@@ -2,36 +2,49 @@
 
 import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 
 /**
- * THE tab control — one component, every tabbed surface in the product.
+ * VB-INSPIRED FOLDER TABS — one control, every tabbed surface.
  *
- * Rebuilt from the Windows tab control, whose mechanism is three fills in a
- * fixed relationship: the rail is darkest, an inactive tab sits on it, and the
- * ACTIVE TAB IS THE PANEL'S OWN FILL. It is not highlighted — it is the panel,
- * continuing upward. Shape and shared fill carry the state, and both survive a
- * greyscale print, which matters in a product where a supervisor and a leader
- * see different things and being on the wrong tab has consequences.
+ * Rebuilt from the Visual Basic 4 SSTab control, whose mechanism is three fills
+ * in a fixed relationship: the rail is darkest, an inactive tab sits on it, and
+ * the ACTIVE TAB IS THE PANEL'S OWN FILL. It is not highlighted — it is the
+ * panel, continuing upward. Shape and shared fill carry the state, and both
+ * survive a greyscale print, which matters anywhere being on the wrong tab has
+ * consequences.
  *
- * What the earlier tab component got wrong, and why this replaces it: it had
- * the folder REASONING but rendered a white tab on a white page with rounded
- * corners, and the one screen using it stripped the panel border — so the
- * active tab had nothing to join to and read as a floating outline. Alongside
- * the grid's segment row it left two rows of near-identical weight with nothing
- * saying which was the outer level.
+ * The visuals live in `folder-tabs.css`, not in utility classes here. This is
+ * one coherent control: change a fill in isolation and the join stops reading,
+ * so the fills belong together where that is obvious. Import it once:
  *
- * The visuals live in `globals.css` under `@layer components`, not in utility
- * classes here. This is one coherent control: change a fill in isolation and
- * the join stops reading, so the fills belong together where that is obvious.
+ *   import "vb-inspired-folder-tabs/folder-tabs.css";
  *
- * Radix underneath, so roving focus, arrow keys, Home/End, `aria-controls` and
- * the disabled-tab skip are the primitive's job rather than ours.
+ * The ONLY runtime dependency is `@radix-ui/react-tabs`, which gives us roving
+ * focus, arrow keys, Home/End, `aria-controls`/`aria-labelledby` pairing and the
+ * disabled-tab skip. No Tailwind, no icon library, no `cn` helper.
  */
 
-type FolderTabsProps = React.ComponentProps<typeof TabsPrimitive.Root> & {
+const cx = (...parts: Array<string | false | null | undefined>) => parts.filter(Boolean).join(" ");
+
+/*
+  Bring a tab fully into view by moving the strip's own scrollLeft. The obvious
+  `scrollIntoView` walks every scrollable ancestor including the document, so
+  arrow-keying along the strip can jump the whole page — worse than the problem
+  it solves.
+*/
+function revealInStrip(tab: HTMLElement) {
+  const strip = tab.closest<HTMLElement>(".fldr-scroll");
+  if (!strip) return;
+  const pad = 12;
+  const left = tab.offsetLeft - pad;
+  const right = tab.offsetLeft + tab.offsetWidth + pad;
+  if (left < strip.scrollLeft) strip.scrollLeft = left;
+  else if (right > strip.scrollLeft + strip.clientWidth) {
+    strip.scrollLeft = right - strip.clientWidth;
+  }
+}
+
+export type FolderTabsProps = React.ComponentProps<typeof TabsPrimitive.Root> & {
   /**
    * A tab control INSIDE another tab panel. Smaller, so level two is
    * unmistakably inside level one — same fills, because it is the same kind of
@@ -40,19 +53,17 @@ type FolderTabsProps = React.ComponentProps<typeof TabsPrimitive.Root> & {
   nested?: boolean;
 };
 
-const NestedContext = React.createContext(false);
-
 export function FolderTabs({ nested = false, className, ...props }: FolderTabsProps) {
   return (
-    <NestedContext.Provider value={nested}>
-      <TabsPrimitive.Root
-        data-slot="folder-tabs"
-        className={cn(nested && "fldr-nested", className)}
-        {...props}
-      />
-    </NestedContext.Provider>
+    <TabsPrimitive.Root
+      data-slot="folder-tabs"
+      className={cx(nested && "fldr-nested", className)}
+      {...props}
+    />
   );
 }
+
+export type FolderTabsRailProps = React.ComponentProps<typeof TabsPrimitive.List>;
 
 /**
  * The rail: the band the tabs stand on, plus its own overflow arrows.
@@ -61,12 +72,9 @@ export function FolderTabs({ nested = false, className, ...props }: FolderTabsPr
  * furniture beside it — and they DISABLE at each end rather than disappearing.
  * A control that changes width under the cursor is a control that misfires.
  */
-export function FolderTabsRail({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) {
+export function FolderTabsRail({ className, children, ...props }: FolderTabsRailProps) {
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  const frame = React.useRef(0);
   const [overflowing, setOverflowing] = React.useState(false);
   const [atStart, setAtStart] = React.useState(true);
   const [atEnd, setAtEnd] = React.useState(true);
@@ -74,27 +82,35 @@ export function FolderTabsRail({
   const sync = React.useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const over = el.scrollWidth > el.clientWidth + 1;
-    setOverflowing(over);
+    const max = el.scrollWidth - el.clientWidth;
+    setOverflowing(max > 1);
     setAtStart(el.scrollLeft <= 1);
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1);
+    setAtEnd(el.scrollLeft >= max - 1);
   }, []);
+
+  // Scroll fires once per frame; measuring layout on every one of those is the
+  // easiest way to make a smooth strip feel slow.
+  const queueSync = React.useCallback(() => {
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(sync);
+  }, [sync]);
 
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     sync();
     // Tabs can change after mount — a count arrives, a role hides one — so the
-    // arrows follow the element rather than being decided once at mount.
-    const observer = new ResizeObserver(sync);
+    // arrows follow the elements rather than being decided once at mount.
+    const observer = new ResizeObserver(queueSync);
     observer.observe(el);
     for (const child of Array.from(el.children)) observer.observe(child);
-    window.addEventListener("resize", sync);
+    window.addEventListener("resize", queueSync);
     return () => {
+      cancelAnimationFrame(frame.current);
       observer.disconnect();
-      window.removeEventListener("resize", sync);
+      window.removeEventListener("resize", queueSync);
     };
-  }, [sync]);
+  }, [sync, queueSync]);
 
   const nudge = (direction: 1 | -1) => {
     const el = scrollRef.current;
@@ -103,8 +119,12 @@ export function FolderTabsRail({
   };
 
   return (
-    <TabsPrimitive.List data-slot="folder-tabs-rail" className={cn("fldr-rail", className)} {...props}>
-      <div ref={scrollRef} className="fldr-scroll" onScroll={sync}>
+    <TabsPrimitive.List
+      data-slot="folder-tabs-rail"
+      className={cx("fldr-rail", className)}
+      {...props}
+    >
+      <div ref={scrollRef} className="fldr-scroll" onScroll={queueSync}>
         {children}
       </div>
 
@@ -119,7 +139,7 @@ export function FolderTabsRail({
           tabIndex={-1}
           onClick={() => nudge(-1)}
         >
-          <ChevronLeft className="size-3.5" aria-hidden="true" />
+          <Chevron direction="left" />
         </button>
         <button
           type="button"
@@ -129,32 +149,48 @@ export function FolderTabsRail({
           tabIndex={-1}
           onClick={() => nudge(1)}
         >
-          <ChevronRight className="size-3.5" aria-hidden="true" />
+          <Chevron direction="right" />
         </button>
       </div>
     </TabsPrimitive.List>
   );
 }
 
+/** Inline so the package needs no icon library for two glyphs. */
+function Chevron({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d={direction === "left" ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"} />
+    </svg>
+  );
+}
+
+export type FolderTabProps = React.ComponentProps<typeof TabsPrimitive.Trigger>;
+
 /**
  * One tab.
  *
- * `scrollIntoView` on selection is not a flourish: with overflow, arrow-keying
- * to a tab off the right-hand edge would otherwise move focus somewhere the
- * person cannot see, which is the accessibility failure that makes a scrolling
- * tab strip unusable by keyboard.
+ * Revealing it on focus is not a flourish: with overflow, arrow-keying to a tab
+ * off the right-hand edge would otherwise move focus somewhere the person cannot
+ * see, which is the failure that makes a scrolling tab strip unusable by
+ * keyboard.
  */
-export function FolderTab({
-  className,
-  onFocus,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+export function FolderTab({ className, onFocus, ...props }: FolderTabProps) {
   return (
     <TabsPrimitive.Trigger
       data-slot="folder-tab"
-      className={cn("fldr-tab", className)}
+      className={cx("fldr-tab", className)}
       onFocus={(event) => {
-        event.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest" });
+        revealInStrip(event.currentTarget);
         onFocus?.(event);
       }}
       {...props}
@@ -162,32 +198,37 @@ export function FolderTab({
   );
 }
 
+export type FolderTabsPanelProps = React.ComponentProps<typeof TabsPrimitive.Content> & {
+  /**
+   * For a panel whose content brings its own card and padding, such as a grid:
+   * without it the panel boxes a box. It tightens the padding but KEEPS the
+   * ground and the side walls — drop those and the rail floats above nothing.
+   */
+  flush?: boolean;
+};
+
 /**
- * The panel. Shares the active tab's fill — if this takes a different ground
- * the join disappears and the control is back to identifying itself with a
- * faint tint.
- *
- * `flush` for a panel whose content brings its own card and padding, such as a
- * grid: without it the panel boxes a box.
+ * The panel. Shares the active tab's fill — if this takes a different ground the
+ * join disappears and the control is back to identifying itself with a faint
+ * tint.
  */
-export function FolderTabsPanel({
-  flush = false,
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content> & { flush?: boolean }) {
+export function FolderTabsPanel({ flush = false, className, ...props }: FolderTabsPanelProps) {
   return (
     <TabsPrimitive.Content
       data-slot="folder-tabs-panel"
-      className={cn("fldr-panel", flush && "fldr-panel-flush", "outline-none", className)}
+      // Focusable, because Radix moves focus here when the panel has no
+      // focusable content of its own — that is the ARIA tab pattern.
+      tabIndex={0}
+      className={cx("fldr-panel", flush && "fldr-panel-flush", className)}
       {...props}
     />
   );
 }
 
 /** A count beside a label. Quiet — the label is the thing being read. */
-export function FolderTabCount({ children }: { children: React.ReactNode }) {
+export function FolderTabCount({ children, className, ...props }: React.ComponentProps<"span">) {
   return (
-    <span className="ml-1.5 rounded-full bg-white/15 px-1.5 py-0.5 text-[11px] tabular-nums">
+    <span className={cx("fldr-count", className)} {...props}>
       {children}
     </span>
   );

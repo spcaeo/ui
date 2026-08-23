@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  format:
+    name: Prettier check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check formatting
+        run: npx --yes prettier@3 --check .
+
+  docs-build:
+    name: Build the docs site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install docs dependencies
+        working-directory: docs
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "No package-lock.json found, falling back to npm install."
+            npm install
+          fi
+
+      - name: Build
+        working-directory: docs
+        run: npm run docs:build
+
+  control:
+    name: Contrast, demo sync and behaviour
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      # The six fills are a measured set. This fails the build if a change to
+      # one of them broke a contrast requirement somewhere else.
+      - name: Re-measure contrast
+        run: npm run contrast:check
+
+      # demo.html inlines vanilla/folder-tabs.js so it works from file://.
+      # This fails the build the moment the copy drifts from the source.
+      - name: Check the demo is in sync with the source
+        run: npm run check:demo
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Behavioural smoke tests
+        run: npm test
