@@ -9,7 +9,7 @@ The control itself is plain CSS, one React file, and one vanilla JS file. Nothin
 is compiled. To try your changes:
 
 ```bash
-open demo.html
+open components/folder-tabs/demo.html
 ```
 
 That is the whole loop. Edit a file, refresh the browser.
@@ -28,7 +28,7 @@ Then open the URL it prints. `npm run build` produces the static site.
 
 ## The one hard rule: the colour variables
 
-`folder-tabs.css` defines eight colour variables per theme. **They are a measured set,
+`components/folder-tabs/folder-tabs.css` defines eight colour variables per theme. **They are a measured set,
 not a palette you can taste-test.** Every tab fill was picked so that:
 
 - label text keeps a contrast ratio of at least **4.5:1** against the tab it sits on
@@ -86,3 +86,27 @@ Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
 ## Code of conduct
 
 By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Adding a component
+
+The tooling is data-driven — adding a component is mostly writing a manifest, not
+writing scripts. The full recipe, with the reasoning behind each step, is in
+**[HANDOVER.md § Adding a component](HANDOVER.md#adding-a-component)**.
+
+In short:
+
+1. `mkdir components/<name>` and write `component.json` (copy folder-tabs' and
+   edit it). This is what every shared tool reads.
+2. Write the stylesheet, and run `npm run contrast <name>` **while** you design
+   the palette rather than after. If it has a dark theme, expect to need an edge
+   variable — [here is why](HANDOVER.md#the-wcag-dark-mode-ceiling).
+3. Write `demo.html` with correct ARIA from the start. It must work from
+   `file://`.
+4. Write `test.mjs` — behavioural tests, run by `npm test <name>`.
+5. Add the `CONTRAST:START` / `CONTRAST:END` markers to the component README and
+   its docs theming page, then `npm run contrast -- --sync`.
+6. `npm run screenshots <name>`, add docs pages, wire the sidebar.
+7. `npm run check` green before you push.
+
+Every component is held to [the bar](README.md#the-bar). If yours cannot meet
+part of it, say so explicitly in its README rather than quietly lowering it.

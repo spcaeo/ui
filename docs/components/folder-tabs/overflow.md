@@ -17,13 +17,13 @@ The rail is a flex row with two children: `.fldr-scroll`, which grows, and
 
 <div class="shot only-light">
 
-![Eleven tabs overflowing their rail in light theme, with two small scroll arrows at the right-hand end inside the rail](/screenshots/overflow-light.png)
+![Eleven tabs overflowing their rail in light theme, with two small scroll arrows at the right-hand end inside the rail](/screenshots/folder-tabs/overflow-light.png)
 
 </div>
 
 <div class="shot only-dark">
 
-![Eleven tabs overflowing their rail in dark theme, with two small scroll arrows at the right-hand end inside the rail](/screenshots/overflow-dark.png)
+![Eleven tabs overflowing their rail in dark theme, with two small scroll arrows at the right-hand end inside the rail](/screenshots/folder-tabs/overflow-dark.png)
 
 </div>
 
@@ -162,7 +162,7 @@ and the focused tab is revealed automatically by adjusting the strip's
 duplicate functionality that the keyboard already has, so putting them in the tab
 sequence would add two dead stops for no gain.
 
-See [focus is revealed, not scrolled-into-view](/guide/accessibility#focus-is-revealed-not-scrolled-into-view)
+See [focus is revealed, not scrolled-into-view](/components/folder-tabs/accessibility#focus-is-revealed-not-scrolled-into-view)
 for why both builds move `scrollLeft` by hand rather than calling
 `scrollIntoView()`.
 
@@ -182,7 +182,7 @@ used.
 If you are routinely overflowing:
 
 - Consider whether some tabs belong one level down, as a
-  [nested](/guide/nesting) control inside a panel.
+  [nested](/components/folder-tabs/nesting) control inside a panel.
 - Consider whether the labels can be shorter. Tabs are `nowrap`, so a three-word
   label costs real width.
 - Consider whether the screen is doing two jobs.

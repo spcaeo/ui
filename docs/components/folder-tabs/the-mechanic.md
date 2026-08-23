@@ -20,7 +20,7 @@ There are three surfaces in this control, and they are ordered by lightness.
 | Lightest | `--tab-panel`     | The panel **and** the active tab                   |
 
 (There are eight variables in total — the other five cover ink, the edge stroke,
-and focus. They are all listed in [Theming](/guide/theming#the-variables). These
+and focus. They are all listed in [Theming](/components/folder-tabs/theming#the-variables). These
 three are the ones the mechanic is made of.)
 
 Note what the third row does not say. It does not say "the active tab is a
@@ -106,7 +106,7 @@ Lightness differences survive greyscale. Hue differences do not.
 
 <div class="shot">
 
-![The tab control rendered fully desaturated: the selected tab is still obviously selected because it is taller, cut into the panel, and shares its fill](/screenshots/greyscale-proof.png)
+![The tab control rendered fully desaturated: the selected tab is still obviously selected because it is taller, cut into the panel, and shares its fill](/screenshots/folder-tabs/greyscale-proof.png)
 
 </div>
 
@@ -157,13 +157,13 @@ prop.
 
 <div class="shot only-light">
 
-![A flush panel in light theme: four cards sit directly inside the panel, which keeps its white ground and side walls](/screenshots/flush-light.png)
+![A flush panel in light theme: four cards sit directly inside the panel, which keeps its white ground and side walls](/screenshots/folder-tabs/flush-light.png)
 
 </div>
 
 <div class="shot only-dark">
 
-![A flush panel in dark theme: four cards sit directly inside the panel, which keeps its ground and side walls](/screenshots/flush-dark.png)
+![A flush panel in dark theme: four cards sit directly inside the panel, which keeps its ground and side walls](/screenshots/folder-tabs/flush-dark.png)
 
 </div>
 
@@ -207,8 +207,8 @@ If you change anything about this control, verify all six:
 2. There is **no border or line** along the join between the active tab and the
    panel.
 3. The active tab is the **lightest** of the three fills, in **every** theme. See
-   [the dark-mode trap](/guide/theming#the-dark-mode-trap).
+   [the dark-mode trap](/components/folder-tabs/theming#the-dark-mode-trap).
 4. The panel still has its **ground and side walls**.
 5. A **desaturated screenshot** still shows which tab is selected.
 6. The **contrast numbers** have been re-measured, all of them, in both themes.
-   See [Contrast](/guide/theming#contrast).
+   See [Contrast](/components/folder-tabs/theming#contrast).

@@ -2,64 +2,69 @@
 layout: home
 
 hero:
-  name: VB Folder Tabs
-  text: The active tab is the panel.
-  tagline: Not a highlighted button. A tab control rebuilt from the Visual Basic 4 SSTab control — three fills in a fixed relationship, so the selected tab and its panel read as one sheet of paper.
+  name: spcaeo/ui
+  text: Components built to a measured bar.
+  tagline: A small collection of interface components where every colour is measured from the stylesheet by a script, every accessibility claim has a test, and CI fails if the docs and the code disagree. No build step, no design system to buy into.
   actions:
     - theme: brand
-      text: Get Started
-      link: /guide/
+      text: Browse Components
+      link: /components/
     - theme: alt
-      text: Quick Start
-      link: /guide/quick-start
+      text: The House Rules
+      link: /guide/house-rules
     - theme: alt
       text: View on GitHub
-      link: https://github.com/spcaeo/vb-inspired-folder-tabs
+      link: https://github.com/spcaeo/ui
 
 features:
-  - title: The mechanic
-    details: The rail is darkest. An inactive tab sits above it. The active tab is exactly the panel's fill. That identity — not a tint, not an underline — is what says which tab is selected.
-    link: /guide/the-mechanic
-    linkText: How it works
-  - title: VB4 heritage
-    details: Trapezoid tabs cut with an angled right edge, standing on a darker rail. Directly inspired by the SSTab control and the Windows 3.1/95 era tab controls, because they solved this problem and then everyone forgot.
-    link: /guide/
-    linkText: The background
-  - title: Survives greyscale
-    details: Shape and shared fill carry the state, so it still reads on a black-and-white print, for a colourblind user, or on a badly calibrated monitor. A tint alone does none of that.
-    link: /guide/the-mechanic#the-greyscale-test
-    linkText: The greyscale test
-  - title: Measured contrast
-    details: Every pair computed from the stylesheet's own values, not eyeballed — including the arithmetic proof that no two dark fills can carry a 3:1 boundary, which is why the edge stroke exists. The numbers are a set — change one, re-measure all.
-    link: /guide/theming#contrast
-    linkText: The contrast table
-  - title: React and vanilla
-    details: A React build on Radix Tabs, where the keyboard and ARIA work comes free, and a zero-dependency ES module for pages that have no framework. One stylesheet between them.
-    link: /guide/installation
-    linkText: Install it
+  - title: Contrast is measured, not eyeballed
+    details: A script parses the stylesheet, computes every text and boundary pair in both themes, and writes the table into the docs. CI re-runs it on every push. A colour cannot be nudged without the numbers moving with it.
+    link: /guide/house-rules#contrast-is-measured
+    linkText: How it is enforced
+  - title: State survives greyscale
+    details: Shape and fill identity carry the state, never hue on its own. Print the page in black and white, or look at it with a colour vision deficiency, and it still reads. That is a requirement here, not a nice-to-have.
+    link: /guide/house-rules#state-survives-greyscale
+    linkText: The greyscale rule
+  - title: The keyboard is not optional
+    details: Roving tabindex, arrow keys, Home and End, correct roles and id pairing, a visible focus ring, and focus never parked somewhere you cannot see. Every component ships the whole WAI-ARIA pattern it claims.
+    link: /guide/house-rules#keyboard-and-aria
+    linkText: The full contract
   - title: No build step
-    details: Plain CSS, one React file, one JS file. No Tailwind, no icon library, no cn helper, no bundler config. The React build's only dependency is @radix-ui/react-tabs; the vanilla build has none at all.
-    link: /api/css
-    linkText: API reference
+    details: Plain CSS and, at most, one file per framework build. No Tailwind, no icon library, no bundler config. A framework build may take one dependency, and the README has to declare it.
+    link: /guide/house-rules#no-build-step
+    linkText: What that costs you
+  - title: Demos run from file://
+    details: Open the demo page straight off disk and it works. A demo that needs a web server to start gets filed as a bug, because a component you cannot try in ten seconds is a component nobody tries.
+    link: /guide/house-rules#demos-run-from-file
+    linkText: Why it matters
+  - title: Every claim has a test
+    details: Reduced motion, forced colours, print, keyboard traversal, overflow behaviour. If a page says the component does something, a browser test asserts it, and the test runs in CI.
+    link: /guide/house-rules#every-claim-has-a-test
+    linkText: The test bar
 ---
 
-## In one paragraph
+## What is here today
 
-Most tab strips mark the selected tab by tinting it, or by putting a coloured bar
-under it. That works until the page is printed in black and white, or the user
-cannot separate those two hues, or the monitor is cheap. This control does
-something older and sturdier: it gives the selected tab **the panel's own fill**,
-and cuts it as a trapezoid that stands proud of the rail, so the tab and the
-panel become one continuous shape. You are not reading a highlight. You are
-reading a join.
+One component, finished. The collection is deliberately small — a component gets
+added when it can pass every rule on the [House Rules](/guide/house-rules) page,
+not when it looks ready.
 
 <div class="shot">
 
-![A folder tab strip: "Rules" selected and merged into the white panel below it, with "Dates", a disabled "Preview", and "Jurisdiction" sitting on a dark rail](/screenshots/hero.png)
+[![A folder tab strip: "Rules" selected and merged into the white panel below it, with "Dates", a disabled "Preview", and "Jurisdiction" sitting on a dark rail](/screenshots/folder-tabs/hero.png)](/components/folder-tabs/)
 
 </div>
 
-<p class="shot-caption">"Rules" is not highlighted. It is the panel, continuing upward past the rail.</p>
+### [Folder Tabs](/components/folder-tabs/)
 
-Read [the mechanic](/guide/the-mechanic) first. Everything else in these docs is
-detail hanging off it.
+A tab control where the active tab _is_ the panel — not a highlighted button.
+Rebuilt from the Visual Basic 4 SSTab control: three fills in a fixed
+relationship, real trapezoid tabs, a React build and a vanilla build over one
+stylesheet. [Guide](/components/folder-tabs/) ·
+[CSS API](/components/folder-tabs/api-css) ·
+[React API](/components/folder-tabs/api-react) ·
+[Vanilla API](/components/folder-tabs/api-vanilla)
+
+Start at the [component index](/components/), or read
+[the house rules](/guide/house-rules) if you want to know what the bar actually
+is before you trust anything on this site.

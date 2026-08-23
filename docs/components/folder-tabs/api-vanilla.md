@@ -1,6 +1,6 @@
 # Vanilla API
 
-`vanilla/folder-tabs.js` — one exported function, zero dependencies, a standard
+`components/folder-tabs/vanilla/folder-tabs.js` — one exported function, zero dependencies, a standard
 ES module.
 
 ```js
@@ -155,7 +155,7 @@ Two spellings, both honoured, and they are not the same thing:
 `aria-disabled` is the WAI-ARIA preference, because it keeps the tab reachable so
 a screen reader user can find it and be told why it is unavailable. Use native
 `disabled` when the tab is genuinely not part of the current task. See
-[two kinds of disabled](/guide/accessibility#two-kinds-of-disabled).
+[two kinds of disabled](/components/folder-tabs/accessibility#two-kinds-of-disabled).
 
 Internally both are collapsed into one check, so anything that skips a disabled
 tab skips either spelling.
@@ -219,7 +219,7 @@ strip and every tab — throttled to one measurement per animation frame, becaus
 `scrollWidth` forces layout and reading it on every scroll event makes a smooth
 strip feel slow.
 
-Full reasoning: [Overflow](/guide/overflow).
+Full reasoning: [Overflow](/components/folder-tabs/overflow).
 
 ## Revealing the focused tab
 
@@ -244,7 +244,7 @@ Put another `[data-folder-tabs]` host inside a panel and add `fldr-nested` to it
 keep each control's tabs to itself.
 
 Give the nested `role="tablist"` its own `aria-label`. See
-[Nesting](/guide/nesting#vanilla-nesting).
+[Nesting](/components/folder-tabs/nesting#vanilla-nesting).
 
 ## Browser requirements
 

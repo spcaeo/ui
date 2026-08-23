@@ -35,7 +35,7 @@ That is the good news. The bad news is on the rest of this page: the values are
 | `--tab-ring-on-panel` | Focus outline on the active tab and the panel      | ≥ 3:1 against `--tab-panel`                                          |
 
 The ordering in the "Constraint" column is not a style preference. It is the
-[mechanic](/guide/the-mechanic): rail darkest, inactive tab above it, active tab
+[mechanic](/components/folder-tabs/the-mechanic): rail darkest, inactive tab above it, active tab
 and panel lightest and identical. Break the ordering and you have built a
 different control that happens to use these class names.
 
@@ -241,7 +241,7 @@ Measured from the exact values in the stylesheet, not eyeballed. WCAG 2.x asks
 component (1.4.11).
 
 The table below is **generated** by `tools/contrast.mjs` directly from
-`folder-tabs.css`, and CI fails if it drifts. Do not edit it by hand — regenerate
+`components/folder-tabs/folder-tabs.css`, and CI fails if it drifts. Do not edit it by hand — regenerate
 it.
 
 <!-- CONTRAST:START -->
@@ -257,8 +257,8 @@ it.
 | active tab vs rail         | 18.11 by fill | 2.08 by fill — **3.45** by edge | 3.0   |
 | active tab vs inactive tab | 6.00 by fill  | 1.69 by fill — **3.45** by edge | 3.0   |
 
-<sub>Boundaries must clear 3.0 **by fill or by edge** — see below for why dark mode
-cannot pass on fill alone.</sub>
+<sub>Boundaries must clear 3.0 **by fill or by edge** — see below for why a dark
+theme cannot pass on fill alone.</sub>
 <!-- CONTRAST:END -->
 
 Read the boundary rows in the dark column and some of them fail on fill alone:
@@ -322,7 +322,7 @@ npm run contrast -- --sync    # measure, and rewrite the generated tables
 npm run contrast -- --check   # verify without writing — this is what CI runs
 ```
 
-It parses `folder-tabs.css`, measures every pair in both themes, checks the
+It parses `components/folder-tabs/folder-tabs.css`, measures every pair in both themes, checks the
 either/or rule on each boundary, and regenerates the table into `README.md` and
 into this page between the `CONTRAST:START` / `CONTRAST:END` markers. CI runs the
 `--check` mode, so the stylesheet and the docs cannot drift apart.

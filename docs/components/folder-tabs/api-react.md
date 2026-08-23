@@ -1,6 +1,6 @@
 # React API
 
-`react/folder-tabs.tsx` — five components, two custom props, one dependency.
+`components/folder-tabs/react/folder-tabs.tsx` — five components, two custom props, one dependency.
 
 ```tsx
 import {
@@ -55,17 +55,17 @@ export type FolderTabsProps = React.ComponentProps<typeof TabsPrimitive.Root> & 
 };
 ```
 
-| Prop             | Type                         | Default        | Description                                                                                                                                        |
-| ---------------- | ---------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `nested`         | `boolean`                    | `false`        | Renders the whole control one size down, for a tab control inside a tab panel. Adds `.fldr-nested`. **Same fills** — see [Nesting](/guide/nesting) |
-| `value`          | `string`                     | —              | Controlled selected value                                                                                                                          |
-| `defaultValue`   | `string`                     | —              | Uncontrolled initial value                                                                                                                         |
-| `onValueChange`  | `(value: string) => void`    | —              | Fires on selection change                                                                                                                          |
-| `orientation`    | `"horizontal" \| "vertical"` | `"horizontal"` | Which arrow keys navigate. The stylesheet only supports horizontal                                                                                 |
-| `dir`            | `"ltr" \| "rtl"`             | `"ltr"`        | Reading direction, which flips left/right arrow behaviour                                                                                          |
-| `activationMode` | `"automatic" \| "manual"`    | `"automatic"`  | `"automatic"` selects on focus; `"manual"` waits for Enter or Space                                                                                |
-| `className`      | `string`                     | —              | Merged after `fldr-nested`                                                                                                                         |
-| `asChild`        | `boolean`                    | `false`        | Radix escape hatch — render your own element                                                                                                       |
+| Prop             | Type                         | Default        | Description                                                                                                                                                         |
+| ---------------- | ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nested`         | `boolean`                    | `false`        | Renders the whole control one size down, for a tab control inside a tab panel. Adds `.fldr-nested`. **Same fills** — see [Nesting](/components/folder-tabs/nesting) |
+| `value`          | `string`                     | —              | Controlled selected value                                                                                                                                           |
+| `defaultValue`   | `string`                     | —              | Uncontrolled initial value                                                                                                                                          |
+| `onValueChange`  | `(value: string) => void`    | —              | Fires on selection change                                                                                                                                           |
+| `orientation`    | `"horizontal" \| "vertical"` | `"horizontal"` | Which arrow keys navigate. The stylesheet only supports horizontal                                                                                                  |
+| `dir`            | `"ltr" \| "rtl"`             | `"ltr"`        | Reading direction, which flips left/right arrow behaviour                                                                                                           |
+| `activationMode` | `"automatic" \| "manual"`    | `"automatic"`  | `"automatic"` selects on focus; `"manual"` waits for Enter or Space                                                                                                 |
+| `className`      | `string`                     | —              | Merged after `fldr-nested`                                                                                                                                          |
+| `asChild`        | `boolean`                    | `false`        | Radix escape hatch — render your own element                                                                                                                        |
 
 Everything not listed is forwarded to `Tabs.Root`.
 
@@ -91,7 +91,7 @@ export type FolderTabsRailProps = React.ComponentProps<typeof TabsPrimitive.List
 | `loop`       | `boolean`   | `true`  | Whether arrow keys wrap from last to first                                        |
 
 No props control the arrows. They appear when the strip actually overflows and
-disable at each end — see [Overflow](/guide/overflow) for why that is not
+disable at each end — see [Overflow](/components/folder-tabs/overflow) for why that is not
 configurable.
 
 Internally the rail keeps three pieces of state (`overflowing`, `atStart`,
@@ -148,7 +148,7 @@ focusable content of its own, which is the ARIA tab pattern — do not override 
 ::: warning
 `flush` reduces padding. It does **not** remove the background or the border, and
 you should not remove them either: the active tab needs a panel to be continuous
-with. See [the panel must exist](/guide/the-mechanic#the-panel-must-exist).
+with. See [the panel must exist](/components/folder-tabs/the-mechanic#the-panel-must-exist).
 :::
 
 ## `FolderTabCount`

@@ -34,5 +34,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `aria-controls`/`aria-labelledby` wiring, roving tabindex, and Left/Right/Home/End
   keyboard navigation, in both the React and vanilla builds.
 
-[Unreleased]: https://github.com/spcaeo/vb-inspired-folder-tabs/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/spcaeo/vb-inspired-folder-tabs/releases/tag/v1.0.0
+[Unreleased]: https://github.com/spcaeo/ui/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/spcaeo/ui/releases/tag/v1.0.0

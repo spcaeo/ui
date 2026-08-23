@@ -1,0 +1,61 @@
+{
+  "name": "@spcaeo/folder-tabs",
+  "version": "1.0.0",
+  "description": "A tab control where the active tab IS the panel, not a highlighted button. Rebuilt from the Visual Basic 4 SSTab control.",
+  "keywords": [
+    "tabs",
+    "tab-control",
+    "folder-tabs",
+    "sstab",
+    "visual-basic",
+    "vb4",
+    "vb6",
+    "retro-ui",
+    "css",
+    "react",
+    "radix-ui",
+    "accessibility",
+    "wcag",
+    "aria",
+    "dark-mode",
+    "oklch",
+    "no-build",
+    "ui-component"
+  ],
+  "license": "MIT",
+  "author": "Space-O Technologies (https://www.spaceo.ca)",
+  "homepage": "https://spcaeo.github.io/ui/components/folder-tabs/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spcaeo/ui.git",
+    "directory": "components/folder-tabs"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./vanilla/folder-tabs.js",
+    "./react": "./react/folder-tabs.tsx",
+    "./folder-tabs.css": "./folder-tabs.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "folder-tabs.css",
+    "react/folder-tabs.tsx",
+    "vanilla/folder-tabs.js",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@radix-ui/react-tabs": ">=1.0.0",
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "@radix-ui/react-tabs": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "name": "folder-tabs",
+  "title": "VB-Inspired Folder Tabs",
+  "tagline": "A tab control where the active tab IS the panel, not a highlighted button.",
+  "heritage": "Visual Basic 4 SSTab control",
+  "status": "stable",
+  "since": "1.0.0",
+  "css": "folder-tabs.css",
+  "demo": "demo.html",
+  "extraDemos": ["heritage.html"],
+  "vanilla": "vanilla/folder-tabs.js",
+  "react": "react/folder-tabs.tsx",
+  "reactPeerDeps": ["@radix-ui/react-tabs"],
+  "docs": "/components/folder-tabs/",
+  "screenshotDir": "folder-tabs",
+  "contrast": {
+    "prefix": "tab",
+    "themes": {
+      "light": ":root {",
+      "dark": ".dark,"
+    },
+    "tables": ["README.md", "../../docs/components/folder-tabs/theming.md"],
+    "text": [
+      {
+        "label": "label on inactive tab",
+        "fg": "rail-ink",
+        "bg": "rail-fill",
+        "need": 4.5
+      },
+      {
+        "label": "label on active tab",
+        "fg": "panel-ink",
+        "bg": "panel",
+        "need": 4.5
+      },
+      {
+        "label": "focus ring on inactive tab",
+        "fg": "ring",
+        "bg": "rail-fill",
+        "need": 3.0
+      },
+      {
+        "label": "focus ring on active tab",
+        "fg": "ring-on-panel",
+        "bg": "panel",
+        "need": 3.0
+      }
+    ],
+    "boundaries": [
+      {
+        "label": "inactive tab vs rail",
+        "a": "rail-fill",
+        "b": "rail",
+        "edge": "edge",
+        "need": 3.0
+      },
+      {
+        "label": "active tab vs rail",
+        "a": "panel",
+        "b": "rail",
+        "edge": "edge",
+        "need": 3.0
+      },
+      {
+        "label": "active tab vs inactive tab",
+        "a": "panel",
+        "b": "rail-fill",
+        "edge": "edge",
+        "need": 3.0
+      }
+    ]
+  },
+  "demoInline": {
+    "source": "vanilla/folder-tabs.js",
+    "target": "demo.html",
+    "startMarker": "/* FLDR:INLINE:START — generated from vanilla/folder-tabs.js. Do not edit by hand. */",
+    "endMarker": "/* FLDR:INLINE:END */"
+  },
+  "shots": [
+    {
+      "name": "demo-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "fullPage": true
+    },
+    {
+      "name": "tabs-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "selector": "section:nth-of-type(1)"
+    },
+    {
+      "name": "nested-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "selector": "section:nth-of-type(2)"
+    },
+    {
+      "name": "overflow-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "selector": "section:nth-of-type(3)"
+    },
+    {
+      "name": "flush-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "selector": "section:nth-of-type(4)"
+    },
+    {
+      "name": "greyscale-proof",
+      "page": "demo.html",
+      "themes": ["light"],
+      "selector": "section:nth-of-type(1)",
+      "filter": "grayscale(1)",
+      "why": "the claim the whole design rests on: state survives with every hue removed"
+    },
+    {
+      "name": "heritage-vb-colourway",
+      "page": "heritage.html",
+      "selector": ".win",
+      "viewport": {
+        "width": 620,
+        "height": 400
+      },
+      "why": "proves the original colourway is reachable with only the declared variables"
+    },
+    {
+      "name": "hero",
+      "page": "demo.html",
+      "themes": ["light"],
+      "selector": "section:nth-of-type(1) [data-folder-tabs]",
+      "clipHeight": 150,
+      "why": "tight crop of the rail plus the top of the panel, for the docs home"
+    }
+  ]
+}

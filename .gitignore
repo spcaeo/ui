@@ -35,3 +35,6 @@ pnpm-debug.log*
 !.vscode/extensions.json
 *.swp
 *.swo
+
+# Claude Code session data
+.claude/

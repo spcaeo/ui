@@ -1,9 +1,9 @@
 {
-  "name": "vb-inspired-folder-tabs-docs",
+  "name": "spcaeo-ui-docs",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Documentation site for vb-inspired-folder-tabs.",
+  "description": "Documentation site for the spcaeo/ui component collection.",
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",

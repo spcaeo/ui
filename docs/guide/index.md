@@ -1,163 +1,63 @@
-# Introduction
+# What this collection is
 
-Folder Tabs is a tab control where **the active tab is the panel**, not a
-highlighted button.
+`spcaeo/ui` is a small set of interface components that are copied into your
+project rather than installed from a registry. There is no npm package, no theme
+provider, no design tokens you have to adopt. You take a stylesheet and, if you
+want state handled for you, one small file per framework.
 
-It is one stylesheet, one React file, and one vanilla JavaScript file. There is
-no build step, no Tailwind, and no design system underneath it. You can copy the
-files into a project and use them in about five minutes, and the whole idea fits
-in a paragraph.
+That sounds like a limitation. It is the point. A component small enough to
+vendor is a component you can read, measure, and change — and everything below is
+only possible because the surface is that small.
 
-## What it is
+## The bar
 
-A horizontal strip of trapezoid tabs standing on a darker rail, with a panel
-directly beneath. The tabs are cut with an angled right edge — a real
-`clip-path` polygon, not a rounded rectangle standing in for one. The selected
-tab is taller than the others and shares the panel's fill, so the two read as a
-single sheet of paper with a tab cut into its top edge.
+Every component in this collection meets the same set of rules, in full, before
+it is listed. They are written out on [House Rules](/guide/house-rules), and in
+short they are:
 
-```
-   ┌──────┐ ╭───────╮ ┌────────┐
-   │ Dates│ │ Rules │ │ Preview│      ← "Rules" is selected
-┌──┴──────┴─┴───────┴─┴────────┴──────┐
-│                                     │
-│  the panel                          │
-│                                     │
-└─────────────────────────────────────┘
-```
+1. **Contrast is measured by a script, not by eye,** and CI fails if the
+   stylesheet and the published numbers disagree. Text clears 4.5:1, boundaries
+   clear 3:1 — by fill or by a measured stroke.
+2. **State survives greyscale.** Shape and fill identity carry the state; hue
+   alone never does.
+3. **The whole keyboard and ARIA pattern ships,** not the parts that were
+   convenient.
+4. **`prefers-reduced-motion`, `forced-colors` and print are handled.**
+5. **No build step,** and at most one dependency for a framework build, declared
+   in the README.
+6. **Every behavioural claim has a browser test.**
+7. **The demo opens from `file://`.**
 
-<div class="shot only-light">
+None of these are aspirations. Each one is either enforced by a script in CI or
+asserted by a test, which is the only reason it is worth telling you about them.
 
-![The control in light theme: a white active tab merged into a white panel, grey inactive tabs on a near-black rail](/screenshots/tabs-light.png)
+## Why a script measures the colours
 
-</div>
+The interesting rule is the first one, because it is the one everybody thinks
+they are already doing.
 
-<div class="shot only-dark">
+Colour variables in a component are **a measured set, not a palette you
+taste-test**. Change one fill and you change the ratios of every pair it takes
+part in, in both themes. Doing that by eye works right up until a boundary lands
+at 2.9:1 and nobody notices, because 2.9 and 3.1 look identical.
 
-![The control in dark theme: a mid-grey active tab merged into a matching panel, darker inactive tabs on a near-black rail](/screenshots/tabs-dark.png)
+So a script parses the stylesheet, computes every pair, and writes the table into
+the documentation between generated markers. CI re-runs it with `--check` on
+every push. If someone nudges a colour and does not re-measure, the build goes
+red before review.
 
-</div>
+The folder-tabs
+[contrast table](/components/folder-tabs/theming#contrast) is what that produces.
+The margins in it are genuinely thin — one boundary sits at 3.02 against a
+requirement of 3.0 — which is exactly why it is generated and not typed.
 
-<p class="shot-caption">The same control in both themes. Note what stays constant: the active tab is the lightest fill in each, because it is the panel.</p>
+## Where to go
 
-That is a description of a physical object — a card index, a hanging folder, a
-divider in a ring binder. It is meant to be. The point of a tab is that it is
-attached to the thing it labels.
+- [Components](/components/) — the index of what exists, with screenshots
+- [House Rules](/guide/house-rules) — the full bar, rule by rule
+- [Contributing](/guide/contributing) — how to meet it in a pull request
 
-## The mechanic
-
-This is the whole idea, and everything else on this site is detail:
-
-> **Three fills in a fixed relationship.** The rail is darkest. An inactive tab
-> sits above it. The active tab is _exactly_ the panel's fill.
-
-Three values, one relationship between them:
-
-| Layer                            | Variable          | Role                                               |
-| -------------------------------- | ----------------- | -------------------------------------------------- |
-| The rail                         | `--tab-rail`      | Darkest. The band everything stands on.            |
-| An inactive tab                  | `--tab-rail-fill` | Lighter than the rail, so a tab separates from it. |
-| The active tab **and** the panel | `--tab-panel`     | Lightest. One value, used twice.                   |
-
-The third row is the control. `--tab-panel` is not "the active tab colour" and
-separately "the panel colour" — it is one value that both things use, and that
-sharing is the entire signal. The active tab is not _marked_ as selected. It
-**is** the panel, continuing upward past the rail.
-
-Two consequences follow, and both of them matter more than they sound:
-
-**It survives greyscale.** Shape and shared fill carry the state. Desaturate the
-whole control and you can still tell which tab is selected, because the selected
-one is still the tallest, still cut into the panel, and still the only one whose
-fill matches the sheet below. That means it reads on a black-and-white printout,
-for a user with any form of colour vision deficiency, and on a monitor that has
-never been calibrated. A tint does none of that: desaturate a tint and it
-becomes a slightly different grey, which is to say nothing at all.
-
-**The panel must exist.** The join is between two things. Give the panel a
-different ground, drop its border, or remove it entirely, and there is nothing
-for the active tab to be continuous _with_ — it becomes a pale rectangle sitting
-on a dark strip, which is a highlight again, and a weak one. The first version of
-this control had a white active tab on a white page with no panel border. It
-read as a floating outline and nobody noticed until someone looked at a
-screenshot.
-
-There is a whole page on this: [The Mechanic](/guide/the-mechanic).
-
-## Where it comes from
-
-The direct ancestor is the **SSTab** control from Visual Basic 4 — the tabbed
-container that shipped in the mid-nineties and that anyone who built a Windows
-settings dialog in that era used without thinking about it. More broadly, the
-Windows 3.1 and Windows 95 tab controls, which established the convention:
-trapezoid or squared tabs on a rail, the selected one grown slightly and merged
-into the page below.
-
-Those controls were designed for hardware with real constraints. Sixteen colours
-was a normal palette. Monitors were bad. Antialiasing was not free. A designer
-could not rely on a subtle 8% tint being visible on the machine the software
-would actually run on, so the selection state had to be carried by geometry and
-by a fill relationship that would survive a terrible display. That constraint
-produced a control that is, by accident of its era, extremely accessible.
-
-Then flat design arrived, the trapezoid became a rounded rectangle, the rail went
-away, and the selected state became a tint or a 2px underline. It looks cleaner.
-It carries less information.
-
-This project is not nostalgia — it does not draw bevels, it does not use system
-greys, and it does not try to look like Windows 95. It takes the one idea worth
-keeping and re-implements it with modern CSS: `clip-path` for a real trapezoid,
-OKLCH for fills that stay perceptually even across themes, and measured contrast
-instead of guessed contrast.
-
-## Why this beats a tinted tab strip
-
-Put the two side by side and the difference is not aesthetic.
-
-|                           | Tinted button strip             | Folder tabs                          |
-| ------------------------- | ------------------------------- | ------------------------------------ |
-| What says "selected"      | A colour difference             | Shared fill + height + shape         |
-| In greyscale              | Usually gone                    | Still obvious                        |
-| For a colourblind user    | Depends which hues you picked   | Unaffected                           |
-| On a bad monitor          | Often gone                      | Still obvious                        |
-| Relationship to the panel | None stated                     | Stated structurally                  |
-| Failure mode              | Ambiguity about which tab is on | Layout breaks visibly, so you fix it |
-
-The last row is worth dwelling on. A tinted tab strip fails _quietly_: the tint
-is still technically there, the DOM is still correct, and the only symptom is
-that some users cannot tell which tab is selected — which they will not report,
-because they will assume they missed something. Folder Tabs fails _loudly_: if
-you break the fill relationship, the control looks visibly wrong to everyone,
-including you, on the first screenshot. A design that breaks in front of you is
-safer than one that breaks behind your back.
-
-There is one more argument, and it is about how people read a screen. A tab strip
-is making a claim: "these panels are siblings, and you are looking at this one."
-A tint asserts the second half and says nothing about the first. Tabs cut into a
-shared sheet assert both at once, without a word of copy.
-
-## What is in the box
-
-```
-folder-tabs.css        the control. Start here — it is the real asset.
-react/folder-tabs.tsx  React, on Radix Tabs (keyboard + ARIA come free)
-vanilla/folder-tabs.js no framework, no dependencies
-demo.html              working example: nesting, overflow, disabled, dark
-```
-
-The stylesheet is the project. Both JavaScript builds are thin: they manage
-selection state, roving focus, and the overflow arrows, then hand every visual
-decision to the CSS. If you want the control in a framework this repository does
-not ship — Svelte, Vue, Web Components, a server-rendered template — you write
-about eighty lines against the same stylesheet and the same class names, and
-everything on this site still applies.
-
-## Where to go next
-
-- [Installation](/guide/installation) — copy the files in. Three paths: CSS only,
-  vanilla, React.
-- [Quick Start](/guide/quick-start) — the shortest working example of each.
-- [The Mechanic](/guide/the-mechanic) — the long version of the idea above.
-- [Theming](/guide/theming) — the eight variables, the dark-mode trap, and the
-  contrast numbers.
-- [Accessibility](/guide/accessibility) — the ARIA tab pattern as implemented.
+If you only read one component page, read
+[The Mechanic](/components/folder-tabs/the-mechanic). It is folder-tabs-specific,
+but it is the clearest example of the thing this collection cares about: an idea
+that carries the interface, rather than a decoration applied on top of one.

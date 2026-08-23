@@ -32,7 +32,7 @@ on every selection change, and on the CSS-only path you must set both.
 **Give the `tablist` a name.** `aria-label="Sections"` is enough. Without it, a
 screen reader user landing on the strip hears "tab list" with no indication of
 what is being switched — and if a page has two tab strips, which is common as
-soon as you [nest](/guide/nesting), they are indistinguishable.
+soon as you [nest](/components/folder-tabs/nesting), they are indistinguishable.
 
 ## Keyboard
 
@@ -161,7 +161,7 @@ accessible name (from `aria-labelledby`) is announced, and its content is read.
 The focus ring on a focused panel uses `--tab-ring-on-panel`, a separate variable
 from the ring on inactive tabs, because a ring colour that reads against a dark
 inactive tab is invisible against a light panel. See
-[Theming](/guide/theming#why-the-focus-ring-is-two-variables).
+[Theming](/components/folder-tabs/theming#why-the-focus-ring-is-two-variables).
 
 ## Reduced motion
 
@@ -268,7 +268,7 @@ The stylesheet also handles printing:
 
 Scroll arrows are meaningless on paper, and a strip that scrolls on screen must
 lay out fully on the page rather than clipping the tabs that were off-view. This
-is the same argument as [the greyscale test](/guide/the-mechanic#the-greyscale-test)
+is the same argument as [the greyscale test](/components/folder-tabs/the-mechanic#the-greyscale-test)
 — printed output is a real output, and the control is designed to survive it.
 
 ## If you are on the CSS-only path
@@ -288,7 +288,7 @@ implement. At minimum:
 7. `data-state` and `aria-selected` kept in sync — two audiences reading the same
    fact.
 
-If that list looks like work, `vanilla/folder-tabs.js` is that list, in about two
+If that list looks like work, `components/folder-tabs/vanilla/folder-tabs.js` is that list, in about two
 hundred lines, with no dependencies. Consider using it.
 
 ## Testing
@@ -301,5 +301,5 @@ hundred lines, with no dependencies. Consider using it.
 - **Narrow viewport.** Overflow arrows appear; arrow-keying keeps focus visible.
 - **Zoom to 200%.** Text stays legible and the strip scrolls rather than clips.
 - **Dark mode.** The selected tab is still the lightest of the three fills.
-- **Greyscale.** Covered in [The Mechanic](/guide/the-mechanic#the-greyscale-test),
+- **Greyscale.** Covered in [The Mechanic](/components/folder-tabs/the-mechanic#the-greyscale-test),
   and it is an accessibility test as much as a design one.

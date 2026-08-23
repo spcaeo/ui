@@ -1,22 +1,28 @@
 # Contributing
 
 The full guide lives in
-[`CONTRIBUTING.md`](https://github.com/spcaeo/vb-inspired-folder-tabs/blob/main/CONTRIBUTING.md)
+[`CONTRIBUTING.md`](https://github.com/spcaeo/ui/blob/main/CONTRIBUTING.md)
 in the repository root. This page is the short version, plus the one rule that
 catches people out.
 
+These rules apply to **every component in the collection**, not just the one that
+happens to be here today. The bar itself is written out in
+[House Rules](/guide/house-rules); this page is how you meet it in a pull
+request.
+
 ## There is no build step
 
-The control is plain CSS, one React file, and one vanilla JS file. Nothing is
-compiled.
+A component is plain CSS plus, at most, one small file per framework build.
+Nothing is compiled. Open its demo straight off disk:
 
 ```bash
-open demo.html
+open components/folder-tabs/demo.html
 ```
 
-That is the whole development loop. Edit a file, refresh the browser. The demo
-exercises nesting, overflow, disabled tabs, and dark mode on one page, so it is
-also the fastest way to check you have not broken something else.
+That is the whole development loop. Edit a file, refresh the browser. Each
+component's demo page exercises its variants and both themes on one page, so it
+is also the fastest way to check you have not broken something else. A demo that
+needs a web server to work is a bug — report it.
 
 The documentation site is the only part with dependencies:
 
@@ -39,7 +45,7 @@ Every value was chosen so that:
 - every interface boundary clears at least **3.0:1** (WCAG 1.4.11) **by fill or
   by the `--tab-edge` stroke** — either route counts, which is the only reason
   dark mode can pass at all, because
-  [no two genuinely dark fills can reach 3:1](/guide/theming#why-dark-fills-cannot-carry-a-boundary).
+  [no two genuinely dark fills can reach 3:1](/components/folder-tabs/theming#why-dark-fills-cannot-carry-a-boundary).
 
 Do not measure by hand. There is a script, and it is the single source of truth:
 
@@ -49,11 +55,13 @@ npm run contrast -- --sync    # measure, and rewrite the generated tables
 npm run contrast -- --check   # verify without writing — this is what CI runs
 ```
 
-It parses `folder-tabs.css`, checks every pair in both themes, and regenerates
-the contrast tables in `README.md` and in
-[Theming](/guide/theming#contrast) between their `CONTRAST:START` /
-`CONTRAST:END` markers. CI runs `--check`, so the stylesheet and the docs cannot
-disagree.
+It parses the component's stylesheet — for folder tabs,
+`components/folder-tabs/folder-tabs.css` — checks every pair in both themes, and
+regenerates the contrast tables in the component's `README.md` and in its theming
+page (for folder tabs,
+[Theming](/components/folder-tabs/theming#contrast)) between their
+`CONTRAST:START` / `CONTRAST:END` markers. CI runs `--check`, so a stylesheet and
+its docs cannot disagree.
 
 Then, in the same pull request:
 
@@ -73,15 +81,19 @@ unmeasured nudge.
 
 ## The other things not to break
 
-- **Keep it dependency-free.** The vanilla build has zero dependencies and the
-  React build has exactly one (`@radix-ui/react-tabs`). No icon library, no
-  Tailwind, no `cn` helper. Two chevrons are inline SVG for a reason.
-- **Keep the ARIA tab pattern intact.** Roles, `aria-selected`, roving
-  `tabindex`, arrow keys, Home/End, disabled-tab skipping, focusable panels. See
-  [Accessibility](/guide/accessibility).
-- **Keep the mechanic.** The active tab's fill must remain identical to the
-  panel's, in every theme, with no line along the join. There is a
-  [six-point checklist](/guide/the-mechanic#a-checklist-for-not-breaking-it) if
+- **Keep it dependency-free.** A vanilla build has zero dependencies; a
+  framework build may take at most one, and the component's README must name it.
+  Folder tabs' React build takes `@radix-ui/react-tabs` and nothing else. No icon
+  library, no Tailwind, no `cn` helper. Two chevrons are inline SVG for a reason.
+- **Keep the ARIA pattern intact.** Whichever WAI-ARIA pattern a component
+  implements, implement all of it: roles, state attributes, roving `tabindex`
+  where the pattern calls for it, the arrow keys, `Home`/`End`, disabled-item
+  skipping, focusable regions. Folder tabs' version is written out in
+  [Accessibility](/components/folder-tabs/accessibility).
+- **Keep the mechanic.** Every component has one idea doing the work, and it is
+  not decoration. For folder tabs, the active tab's fill must remain identical to
+  the panel's, in every theme, with no line along the join — there is a
+  [six-point checklist](/components/folder-tabs/the-mechanic#a-checklist-for-not-breaking-it) if
   you are changing anything visual.
 - **Regenerate the sRGB fallbacks.** The `@supports not (color: oklch(0 0 0))`
   block holds a second copy of every variable. It is generated — do not
@@ -112,4 +124,4 @@ Small pull requests get reviewed faster. If you are planning something large,
 open an issue first so the shape can be agreed before you build it.
 
 By taking part you agree to the
-[Code of Conduct](https://github.com/spcaeo/vb-inspired-folder-tabs/blob/main/CODE_OF_CONDUCT.md).
+[Code of Conduct](https://github.com/spcaeo/ui/blob/main/CODE_OF_CONDUCT.md).

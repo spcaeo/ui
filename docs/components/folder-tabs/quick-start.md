@@ -1,7 +1,7 @@
 # Quick Start
 
 The shortest thing that works, for each of the three paths. Copy one, get it on
-screen, then read [The Mechanic](/guide/the-mechanic) to understand what you are
+screen, then read [The Mechanic](/components/folder-tabs/the-mechanic) to understand what you are
 looking at.
 
 ## Vanilla
@@ -95,7 +95,7 @@ Three things in that markup are load-bearing and easy to get wrong:
   them in the tab sequence puts two dead stops between your tab strip and your
   panel content.
 
-Full contract: [Vanilla API](/api/vanilla).
+Full contract: [Vanilla API](/components/folder-tabs/api-vanilla).
 
 ## React
 
@@ -183,7 +183,7 @@ attributes:
 That is the entire contract between your code and the stylesheet. Everything
 else — which panel is visible, what the keyboard does, what a screen reader is
 told — is yours to implement on this path. See
-[Accessibility](/guide/accessibility) for what you are signing up for.
+[Accessibility](/components/folder-tabs/accessibility) for what you are signing up for.
 
 ## What to check before you call it done
 
@@ -194,7 +194,7 @@ told — is yours to implement on this path. See
 3. **Narrow the window** until the tabs overflow. The arrows should appear inside
    the rail and disable at each end.
 4. **Switch to dark mode.** The selected tab must still be the _lightest_ of the
-   three fills. If it went darker, read [the dark-mode trap](/guide/theming#the-dark-mode-trap).
+   three fills. If it went darker, read [the dark-mode trap](/components/folder-tabs/theming#the-dark-mode-trap).
 5. **Screenshot it and desaturate the image.** You should still be able to tell
    which tab is selected. If you cannot, something in the fill relationship has
    been overridden.

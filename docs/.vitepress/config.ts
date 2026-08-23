@@ -1,14 +1,56 @@
 import { defineConfig } from "vitepress";
 
-const repo = "https://github.com/spcaeo/vb-inspired-folder-tabs";
-const base = "/vb-inspired-folder-tabs/";
-const site = "https://spcaeo.github.io/vb-inspired-folder-tabs/";
+const repo = "https://github.com/spcaeo/ui";
+const base = "/ui/";
+const site = "https://spcaeo.github.io/ui/";
 
 const description =
-  "A tab control where the active tab IS the panel. Rebuilt from the Visual Basic 4 SSTab control: three fills in a fixed relationship, real trapezoid tabs, measured contrast, React and vanilla builds.";
+  "A small collection of interface components built to a measured bar: contrast computed from the stylesheet and enforced in CI, state that survives greyscale, the full keyboard and ARIA pattern, and no build step.";
+
+// One block per component. Adding a component means adding an entry here and a
+// matching section to the sidebar below — nothing else in this file changes.
+const folderTabsSidebar = [
+  {
+    text: "Folder Tabs",
+    items: [
+      { text: "Overview", link: "/components/folder-tabs/" },
+      { text: "Installation", link: "/components/folder-tabs/installation" },
+      { text: "Quick Start", link: "/components/folder-tabs/quick-start" },
+    ],
+  },
+  {
+    text: "Folder Tabs — the design",
+    items: [
+      { text: "The Mechanic", link: "/components/folder-tabs/the-mechanic" },
+      { text: "Theming", link: "/components/folder-tabs/theming" },
+      { text: "Accessibility", link: "/components/folder-tabs/accessibility" },
+      { text: "Nesting", link: "/components/folder-tabs/nesting" },
+      { text: "Overflow", link: "/components/folder-tabs/overflow" },
+    ],
+  },
+  {
+    text: "Folder Tabs — API",
+    items: [
+      { text: "CSS", link: "/components/folder-tabs/api-css" },
+      { text: "React", link: "/components/folder-tabs/api-react" },
+      { text: "Vanilla JS", link: "/components/folder-tabs/api-vanilla" },
+    ],
+  },
+];
+
+const collectionSidebar = [
+  {
+    text: "The collection",
+    items: [
+      { text: "What this is", link: "/guide/" },
+      { text: "House Rules", link: "/guide/house-rules" },
+      { text: "Contributing", link: "/guide/contributing" },
+    ],
+  },
+];
 
 export default defineConfig({
-  title: "VB Folder Tabs",
+  title: "spcaeo/ui",
   description,
   base,
   lastUpdated: true,
@@ -18,65 +60,43 @@ export default defineConfig({
     ["link", { rel: "icon", type: "image/svg+xml", href: `${base}favicon.svg` }],
     ["meta", { name: "theme-color", content: "#1a1f2b" }],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:site_name", content: "VB Folder Tabs" }],
-    ["meta", { property: "og:title", content: "VB Folder Tabs" }],
+    ["meta", { property: "og:site_name", content: "spcaeo/ui" }],
+    ["meta", { property: "og:title", content: "spcaeo/ui" }],
     ["meta", { property: "og:description", content: description }],
     ["meta", { property: "og:url", content: site }],
     ["meta", { name: "twitter:card", content: "summary" }],
-    ["meta", { name: "twitter:title", content: "VB Folder Tabs" }],
+    ["meta", { name: "twitter:title", content: "spcaeo/ui" }],
     ["meta", { name: "twitter:description", content: description }],
   ],
 
   themeConfig: {
     nav: [
-      { text: "Guide", link: "/guide/", activeMatch: "/guide/" },
-      { text: "API", link: "/api/css", activeMatch: "/api/" },
-      { text: "Demo", link: `${repo}/blob/main/demo.html` },
+      {
+        text: "Components",
+        link: "/components/",
+        activeMatch: "/components/",
+      },
+      { text: "The Collection", link: "/guide/", activeMatch: "/guide/" },
+      { text: "House Rules", link: "/guide/house-rules" },
     ],
 
     sidebar: {
-      "/guide/": [
+      "/components/folder-tabs/": [
         {
-          text: "Guide",
-          items: [
-            { text: "Introduction", link: "/guide/" },
-            { text: "Installation", link: "/guide/installation" },
-            { text: "Quick Start", link: "/guide/quick-start" },
-          ],
+          text: "Components",
+          items: [{ text: "All components", link: "/components/" }],
         },
-        {
-          text: "The Design",
-          items: [
-            { text: "The Mechanic", link: "/guide/the-mechanic" },
-            { text: "Theming", link: "/guide/theming" },
-            { text: "Accessibility", link: "/guide/accessibility" },
-            { text: "Nesting", link: "/guide/nesting" },
-            { text: "Overflow", link: "/guide/overflow" },
-          ],
-        },
-        {
-          text: "Project",
-          items: [{ text: "Contributing", link: "/guide/contributing" }],
-        },
+        ...folderTabsSidebar,
+        ...collectionSidebar,
       ],
-      "/api/": [
+      "/components/": [
         {
-          text: "API Reference",
-          items: [
-            { text: "CSS", link: "/api/css" },
-            { text: "React", link: "/api/react" },
-            { text: "Vanilla JS", link: "/api/vanilla" },
-          ],
+          text: "Components",
+          items: [{ text: "All components", link: "/components/" }],
         },
-        {
-          text: "Guide",
-          items: [
-            { text: "Introduction", link: "/guide/" },
-            { text: "The Mechanic", link: "/guide/the-mechanic" },
-            { text: "Theming", link: "/guide/theming" },
-          ],
-        },
+        ...folderTabsSidebar,
       ],
+      "/guide/": [...collectionSidebar, ...folderTabsSidebar],
     },
 
     socialLinks: [{ icon: "github", link: repo }],

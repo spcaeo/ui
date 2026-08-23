@@ -1,6 +1,6 @@
 # CSS API
 
-Everything in `folder-tabs.css`: eight custom properties, ten classes, two state
+Everything in `components/folder-tabs/folder-tabs.css`: eight custom properties, ten classes, two state
 attributes. This is the complete surface — there is nothing else to learn.
 
 ## Custom properties
@@ -22,7 +22,7 @@ colours in the stylesheet.
 ### Required relationships
 
 These are constraints, not preferences. See
-[The Mechanic](/guide/the-mechanic) and [Theming](/guide/theming).
+[The Mechanic](/components/folder-tabs/the-mechanic) and [Theming](/components/folder-tabs/theming).
 
 | Rule                                                                 | Why                                                                                                         |
 | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -105,12 +105,12 @@ The two disabled spellings look the same on purpose but behave differently:
 `disabled` removes the tab from the page, while `aria-disabled="true"` keeps it
 focusable so a screen reader user can find it and be told why it is unavailable.
 WAI-ARIA prefers the second. See
-[two kinds of disabled](/guide/accessibility#two-kinds-of-disabled).
+[two kinds of disabled](/components/folder-tabs/accessibility#two-kinds-of-disabled).
 
 ::: warning
 `data-state` drives the CSS. `aria-selected` drives assistive technology. They
 are two different audiences reading the same fact, and if you are setting state
-yourself you must set both. See [Accessibility](/guide/accessibility).
+yourself you must set both. See [Accessibility](/components/folder-tabs/accessibility).
 :::
 
 ## Selectors you may want to override

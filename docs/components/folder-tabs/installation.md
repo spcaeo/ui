@@ -6,10 +6,11 @@ whole thing is small enough that vendoring it is the honest option, and it means
 you can edit the fills without fighting a dependency.
 
 Everything below assumes you have cloned or downloaded
-[`spcaeo/vb-inspired-folder-tabs`](https://github.com/spcaeo/vb-inspired-folder-tabs).
+[`spcaeo/ui`](https://github.com/spcaeo/ui). The control lives in
+`components/folder-tabs/`.
 
 ```bash
-git clone https://github.com/spcaeo/vb-inspired-folder-tabs.git
+git clone https://github.com/spcaeo/ui.git
 ```
 
 Then pick one of the three paths.
@@ -23,7 +24,7 @@ navigation — and you only want the appearance and the structure.
 **Copy one file:**
 
 ```
-folder-tabs.css  →  your project
+components/folder-tabs/folder-tabs.css  →  your project
 ```
 
 **Link it:**
@@ -46,7 +47,7 @@ for you:
 2. Showing the matching panel and hiding the others (the `hidden` attribute is
    what the other builds use).
 3. The ARIA and keyboard contract — `role`, `aria-selected`, roving `tabindex`,
-   arrow keys, Home/End. Read [Accessibility](/guide/accessibility) before you
+   arrow keys, Home/End. Read [Accessibility](/components/folder-tabs/accessibility) before you
    ship this path; it is the part people skip.
 
 The stylesheet itself has no opinion about how state arrives. It only reads
@@ -60,8 +61,8 @@ React.
 **Copy two files:**
 
 ```
-folder-tabs.css        →  your project
-vanilla/folder-tabs.js →  your project
+components/folder-tabs/folder-tabs.css        →  your project
+components/folder-tabs/vanilla/folder-tabs.js →  your project
 ```
 
 **Wire it up:**
@@ -98,7 +99,7 @@ const teardown = initFolderTabs(container);
 teardown();
 ```
 
-The full markup contract is on the [Vanilla API page](/api/vanilla). It matters:
+The full markup contract is on the [Vanilla API page](/components/folder-tabs/api-vanilla). It matters:
 this build reads your markup rather than generating it, so the roles and the
 `aria-controls` wiring have to be right in the HTML.
 
@@ -120,8 +121,8 @@ use either, fine, but this control does not require them and does not assume a
 **Copy two files:**
 
 ```
-folder-tabs.css        →  your project
-react/folder-tabs.tsx  →  your components directory
+components/folder-tabs/folder-tabs.css       →  your project
+components/folder-tabs/react/folder-tabs.tsx →  your components directory
 ```
 
 **Import the stylesheet once**, at the root of your app, so it is loaded
@@ -144,12 +145,12 @@ import {
 } from "./components/folder-tabs";
 ```
 
-See [Quick Start](/guide/quick-start#react) for a working example and the
-[React API](/api/react) for every prop.
+See [Quick Start](/components/folder-tabs/quick-start#react) for a working example and the
+[React API](/components/folder-tabs/api-react) for every prop.
 
 ### A note on Next.js
 
-`react/folder-tabs.tsx` begins with `"use client"`. It has to: it uses state,
+`components/folder-tabs/react/folder-tabs.tsx` begins with `"use client"`. It has to: it uses state,
 refs, a `ResizeObserver`, and event handlers. In the App Router, import it from a
 server component freely — the directive marks the boundary for you. Do not add
 `"use client"` to the page that renders it unless that page needs it for its own
@@ -174,24 +175,24 @@ the three fills, the trapezoid, and the join are unaffected.
 If you retheme, remember the `@supports not (color: oklch(0 0 0))` block —
 it holds a second copy of every variable, and leaving it on the old palette means
 older browsers render someone else's colours. See
-[Theming](/guide/theming#if-you-do-not-use-oklch).
+[Theming](/components/folder-tabs/theming#if-you-do-not-use-oklch).
 
 ## Verifying it works
 
-Open `demo.html` from the repository root in a browser. No server, no install.
+Open `components/folder-tabs/demo.html` from the clone in a browser. No server, no install.
 It exercises nesting, overflow, disabled tabs, and dark mode in one page, so if
 your copy renders that correctly you have copied everything you need.
 
 <div class="shot only-light">
 
-![The full demo page in light theme, showing every variant of the control stacked down the page](/screenshots/demo-light.png)
+![The full demo page in light theme, showing every variant of the control stacked down the page](/screenshots/folder-tabs/demo-light.png)
 
 </div>
 
 <div class="shot only-dark">
 
-![The full demo page in dark theme, showing every variant of the control stacked down the page](/screenshots/demo-dark.png)
+![The full demo page in dark theme, showing every variant of the control stacked down the page](/screenshots/folder-tabs/demo-dark.png)
 
 </div>
 
-<p class="shot-caption">demo.html in full. If your copy looks like this, everything is wired correctly.</p>
+<p class="shot-caption">The demo page in full. If your copy looks like this, everything is wired correctly.</p>

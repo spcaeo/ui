@@ -42,13 +42,13 @@ navigation of the screen. The reader had to guess.
 
 <div class="shot only-light">
 
-![A tab control inside a tab panel in light theme, rendered one size smaller with the same colours](/screenshots/nested-light.png)
+![A tab control inside a tab panel in light theme, rendered one size smaller with the same colours](/screenshots/folder-tabs/nested-light.png)
 
 </div>
 
 <div class="shot only-dark">
 
-![A tab control inside a tab panel in dark theme, rendered one size smaller with the same colours](/screenshots/nested-dark.png)
+![A tab control inside a tab panel in dark theme, rendered one size smaller with the same colours](/screenshots/folder-tabs/nested-dark.png)
 
 </div>
 
@@ -177,7 +177,7 @@ a sub-toolbar that happens to use the tab shape.
 `.fldr-nested` ancestor and without touching any panel. Use it when there is no
 nested panel to style — and remember that if there is no panel at all, you have
 given up the mechanic. See
-[the panel must exist](/guide/the-mechanic#the-panel-must-exist).
+[the panel must exist](/components/folder-tabs/the-mechanic#the-panel-must-exist).
 
 ## How deep to go
 

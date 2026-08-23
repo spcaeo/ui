@@ -17,7 +17,7 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
  * one coherent control: change a fill in isolation and the join stops reading,
  * so the fills belong together where that is obvious. Import it once:
  *
- *   import "vb-inspired-folder-tabs/folder-tabs.css";
+ *   import "@spcaeo/folder-tabs/folder-tabs.css";
  *
  * The ONLY runtime dependency is `@radix-ui/react-tabs`, which gives us roving
  * focus, arrow keys, Home/End, `aria-controls`/`aria-labelledby` pairing and the

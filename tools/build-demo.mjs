@@ -1,47 +1,61 @@
 #!/usr/bin/env node
 /**
- * Inline `vanilla/folder-tabs.js` into `demo.html` between the FLDR:INLINE
- * markers.
+ * Inline a component's vanilla source into its demo page, between the markers
+ * that component declares in its component.json.
  *
- * WHY: demo.html must work when double-clicked from a file manager, and file://
+ * WHY: a demo must work when double-clicked from a file manager, and file://
  * refuses ES module imports on CORS grounds. Copying the source by hand is how
  * the two silently drift, so it is generated instead — and `--check` lets CI
  * fail the build the moment they disagree.
  *
- *   node tools/build-demo.mjs           write demo.html
- *   node tools/build-demo.mjs --check   exit 1 if demo.html is stale
+ *   npm run build:demo                 every component
+ *   npm run build:demo folder-tabs     just one
+ *   npm run check:demo                 verify without writing
  */
 import { readFileSync, writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import { selected } from "./lib/components.mjs";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const START =
-  "/* FLDR:INLINE:START — generated from vanilla/folder-tabs.js. Do not edit by hand. */";
-const END = "/* FLDR:INLINE:END */";
+const argv = process.argv.slice(2);
+const check = argv.includes("--check");
+let stale = false;
+let did = 0;
 
-const source = readFileSync(join(root, "vanilla/folder-tabs.js"), "utf8")
-  .replace(/^export default .*$/m, "")
-  .replace(/^export /gm, "")
-  .trimEnd();
+for (const component of selected(argv)) {
+  const cfg = component.demoInline;
+  if (!cfg) continue;
 
-const html = readFileSync(join(root, "demo.html"), "utf8");
-const from = html.indexOf(START);
-const to = html.indexOf(END);
-if (from < 0 || to < 0) {
-  console.error("demo.html is missing the FLDR:INLINE markers.");
-  process.exit(1);
-}
+  const source = readFileSync(join(component.dir, cfg.source), "utf8")
+    .replace(/^export default .*$/m, "")
+    .replace(/^export /gm, "")
+    .trimEnd();
 
-const next = html.slice(0, from + START.length) + "\n" + source + "\n" + html.slice(to);
-
-if (process.argv.includes("--check")) {
-  if (next !== html) {
-    console.error("demo.html is out of date with vanilla/folder-tabs.js.\nRun: npm run build:demo");
+  const target = join(component.dir, cfg.target);
+  const html = readFileSync(target, "utf8");
+  const from = html.indexOf(cfg.startMarker);
+  const to = html.indexOf(cfg.endMarker);
+  if (from < 0 || to < 0) {
+    console.error(`${component.name}: ${cfg.target} is missing its inline markers.`);
     process.exit(1);
   }
-  console.log("demo.html is in sync with vanilla/folder-tabs.js");
-} else {
-  writeFileSync(join(root, "demo.html"), next);
-  console.log(`demo.html updated (${source.split("\n").length} lines inlined)`);
+
+  const next = html.slice(0, from + cfg.startMarker.length) + "\n" + source + "\n" + html.slice(to);
+  did++;
+
+  if (check) {
+    if (next !== html) {
+      stale = true;
+      console.error(`  STALE       ${component.name}/${cfg.target} — run: npm run build:demo`);
+    } else {
+      console.log(`  in sync     ${component.name}/${cfg.target}`);
+    }
+  } else {
+    writeFileSync(target, next);
+    console.log(
+      `  written     ${component.name}/${cfg.target} (${source.split("\n").length} lines inlined)`,
+    );
+  }
 }
+
+if (!did) console.log("  no component declares a demoInline block.");
+if (stale) process.exit(1);
