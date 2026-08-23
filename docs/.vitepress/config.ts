@@ -38,6 +38,34 @@ const folderTabsSidebar = [
   },
 ];
 
+const dataGridSidebar = [
+  {
+    text: "Data Grid",
+    items: [
+      { text: "Overview", link: "/components/data-grid/" },
+      { text: "Installation", link: "/components/data-grid/installation" },
+    ],
+  },
+  {
+    text: "Data Grid — the design",
+    items: [
+      { text: "URL State", link: "/components/data-grid/url-state" },
+      { text: "Filtering", link: "/components/data-grid/filtering" },
+      { text: "States", link: "/components/data-grid/states" },
+      { text: "Theming", link: "/components/data-grid/theming" },
+      { text: "Accessibility", link: "/components/data-grid/accessibility" },
+    ],
+  },
+  {
+    text: "Data Grid — API",
+    items: [
+      { text: "Core", link: "/components/data-grid/api-core" },
+      { text: "React", link: "/components/data-grid/api-react" },
+      { text: "Vanilla JS", link: "/components/data-grid/api-vanilla" },
+    ],
+  },
+];
+
 const collectionSidebar = [
   {
     text: "The collection",
@@ -89,14 +117,23 @@ export default defineConfig({
         ...folderTabsSidebar,
         ...collectionSidebar,
       ],
+      "/components/data-grid/": [
+        {
+          text: "Components",
+          items: [{ text: "All components", link: "/components/" }],
+        },
+        ...dataGridSidebar,
+        ...collectionSidebar,
+      ],
       "/components/": [
         {
           text: "Components",
           items: [{ text: "All components", link: "/components/" }],
         },
         ...folderTabsSidebar,
+        ...dataGridSidebar,
       ],
-      "/guide/": [...collectionSidebar, ...folderTabsSidebar],
+      "/guide/": [...collectionSidebar, ...folderTabsSidebar, ...dataGridSidebar],
     },
 
     socialLinks: [{ icon: "github", link: repo }],

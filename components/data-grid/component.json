@@ -17,7 +17,7 @@
       "light": ":root {",
       "dark": ".dark,"
     },
-    "tables": ["README.md"],
+    "tables": ["README.md", "../../docs/components/data-grid/theming.md"],
     "text": [
       {
         "label": "body text on background",

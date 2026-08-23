@@ -5,8 +5,8 @@ themes, state that survives greyscale, the full keyboard and ARIA pattern it
 claims, reduced-motion and forced-colors handling, and a demo that opens straight
 off disk. The bar is written out in [House Rules](/guide/house-rules).
 
-There is one component today. That is not a roadmap position — a component gets
-added when it can pass, and not before.
+There are two components today. That is not a roadmap position — a component
+gets added when it can pass, and not before.
 
 ## Folder Tabs
 
@@ -30,6 +30,36 @@ module — one stylesheet between all three.
 - API reference: [CSS](/components/folder-tabs/api-css) ·
   [React](/components/folder-tabs/api-react) ·
   [Vanilla JS](/components/folder-tabs/api-vanilla)
+
+## Data Grid
+
+A listing grid whose **entire state lives in the URL**. Search, filter, sort,
+page, segment and display mode are all in the address bar, so any view can be
+shared, bookmarked, reloaded, and reached by Back. There are many good React
+tables; almost none of them can be linked to.
+
+<div class="shot">
+
+[![The grid in light theme, showing a bookshop stock list with a search box, a genre filter, sortable headers and pagination](/screenshots/data-grid/grid-light.png)](/components/data-grid/)
+
+</div>
+
+Zero dependencies — popovers use the native `popover` attribute and dialogs use
+`<dialog>`. It also declines to duplicate your design system: every colour is
+`var(--host-token, fallback)`, so it inherits shadcn/ui's tokens where they
+exist and falls back to a measured palette where they do not.
+
+- [Guide](/components/data-grid/) — what it is and why it is built this way
+- [Installation](/components/data-grid/installation) — four copy-in paths
+- [URL State](/components/data-grid/url-state) — the parameter table and the six
+  rules the core enforces
+- [Filtering](/components/data-grid/filtering) ·
+  [States](/components/data-grid/states) ·
+  [Theming](/components/data-grid/theming) ·
+  [Accessibility](/components/data-grid/accessibility)
+- API reference: [Core](/components/data-grid/api-core) ·
+  [React](/components/data-grid/api-react) ·
+  [Vanilla JS](/components/data-grid/api-vanilla)
 
 ## Adding another
 
