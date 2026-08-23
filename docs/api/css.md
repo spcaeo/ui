@@ -24,15 +24,15 @@ colours in the stylesheet.
 These are constraints, not preferences. See
 [The Mechanic](/guide/the-mechanic) and [Theming](/guide/theming).
 
-| Rule                                                                 | Why                                                                               |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `--tab-panel` is the **lightest** of the three fills, in every theme | It _is_ the panel; if it is darker than the tab fill, selection reads as inverted |
-| `--tab-rail` is the **darkest** of the three fills                   | It is the ground everything stands on                                             |
-| `--tab-rail-ink` ≥ 4.5:1 on `--tab-rail-fill`                        | WCAG 1.4.3, normal text                                                           |
-| `--tab-panel-ink` ≥ 4.5:1 on `--tab-panel`                           | WCAG 1.4.3, normal text                                                           |
-| `--tab-edge` ≥ 3:1 against rail, tab fill, and panel                 | WCAG 1.4.11, component boundary                                                   |
-| `--tab-ring` ≥ 3:1 on `--tab-rail-fill`                              | WCAG 1.4.11, focus indicator                                                      |
-| `--tab-ring-on-panel` ≥ 3:1 on `--tab-panel`                         | WCAG 1.4.11, focus indicator                                                      |
+| Rule                                                                 | Why                                                                                                         |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `--tab-panel` is the **lightest** of the three fills, in every theme | It _is_ the panel; if it is darker than the tab fill, selection reads as inverted                           |
+| `--tab-rail` is the **darkest** of the three fills                   | It is the ground everything stands on                                                                       |
+| `--tab-rail-ink` ≥ 4.5:1 on `--tab-rail-fill`                        | WCAG 1.4.3, normal text                                                                                     |
+| `--tab-panel-ink` ≥ 4.5:1 on `--tab-panel`                           | WCAG 1.4.3, normal text                                                                                     |
+| Every boundary clears 3:1 **by fill or by `--tab-edge`**             | WCAG 1.4.11, component boundary. Light theme passes by fill, dark theme by edge — either route satisfies it |
+| `--tab-ring` ≥ 3:1 on `--tab-rail-fill`                              | WCAG 1.4.11, focus indicator                                                                                |
+| `--tab-ring-on-panel` ≥ 3:1 on `--tab-panel`                         | WCAG 1.4.11, focus indicator                                                                                |
 
 ## Theme selectors
 

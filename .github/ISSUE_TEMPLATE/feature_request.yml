@@ -45,11 +45,11 @@ body:
     attributes:
       label: Colour variables
       description: >-
-        The six colour variables in `folder-tabs.css` are a measured set. Changing any
+        The eight colour variables in `folder-tabs.css` are a measured set. Changing any
         fill means re-measuring every contrast ratio (4.5:1 for label text, 3.0:1 for
         the tab/rail boundary) in both themes and updating the table in the README.
       options:
-        - label: This change would alter one or more of the six colour variables.
+        - label: This change would alter one or more of the eight colour variables.
           required: false
         - label: >-
             I understand that if it does, the pull request must include newly measured

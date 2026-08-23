@@ -26,9 +26,9 @@ npm run dev
 
 Then open the URL it prints. `npm run build` produces the static site.
 
-## The one hard rule: the six colour variables
+## The one hard rule: the colour variables
 
-`folder-tabs.css` defines six colour variables per theme. **They are a measured set,
+`folder-tabs.css` defines eight colour variables per theme. **They are a measured set,
 not a palette you can taste-test.** Every tab fill was picked so that:
 
 - label text keeps a contrast ratio of at least **4.5:1** against the tab it sits on

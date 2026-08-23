@@ -23,16 +23,16 @@ That is the good news. The bad news is on the rest of this page: the values are
 }
 ```
 
-| Variable              | What it paints                                     | Constraint                                  |
-| --------------------- | -------------------------------------------------- | ------------------------------------------- |
-| `--tab-rail`          | The rail behind the tabs                           | Must be the **darkest** of the three fills  |
-| `--tab-rail-fill`     | An inactive tab, and the overflow arrows           | Between the rail and the panel in lightness |
-| `--tab-rail-ink`      | An inactive tab's label, and the arrow glyphs      | ≥ 4.5:1 against `--tab-rail-fill`           |
-| `--tab-panel`         | The panel **and** the active tab                   | Must be the **lightest** of the three fills |
-| `--tab-panel-ink`     | Panel text and the active tab's label              | ≥ 4.5:1 against `--tab-panel`               |
-| `--tab-edge`          | The stroke around every tab, and the panel border  | ≥ 3:1 against every surface it touches      |
-| `--tab-ring`          | Focus outline on an inactive tab and on the arrows | ≥ 3:1 against `--tab-rail-fill`             |
-| `--tab-ring-on-panel` | Focus outline on the active tab and the panel      | ≥ 3:1 against `--tab-panel`                 |
+| Variable              | What it paints                                     | Constraint                                                           |
+| --------------------- | -------------------------------------------------- | -------------------------------------------------------------------- |
+| `--tab-rail`          | The rail behind the tabs                           | Must be the **darkest** of the three fills                           |
+| `--tab-rail-fill`     | An inactive tab, and the overflow arrows           | Between the rail and the panel in lightness                          |
+| `--tab-rail-ink`      | An inactive tab's label, and the arrow glyphs      | ≥ 4.5:1 against `--tab-rail-fill`                                    |
+| `--tab-panel`         | The panel **and** the active tab                   | Must be the **lightest** of the three fills                          |
+| `--tab-panel-ink`     | Panel text and the active tab's label              | ≥ 4.5:1 against `--tab-panel`                                        |
+| `--tab-edge`          | The stroke around every tab, and the panel border  | Must carry any boundary the fills do not — see [Contrast](#contrast) |
+| `--tab-ring`          | Focus outline on an inactive tab and on the arrows | ≥ 3:1 against `--tab-rail-fill`                                      |
+| `--tab-ring-on-panel` | Focus outline on the active tab and the panel      | ≥ 3:1 against `--tab-panel`                                          |
 
 The ordering in the "Constraint" column is not a style preference. It is the
 [mechanic](/guide/the-mechanic): rail darkest, inactive tab above it, active tab
@@ -63,9 +63,11 @@ the boundary, so a stroke has to. Exactly as the original Windows control used a
 3D border.
 
 In light theme `--tab-edge` is set to the same value as `--tab-rail`, so the
-stroke disappears into the rail and the fill difference does the work. In dark
-theme it lifts to `oklch(0.70 0 0)` — a light grey outline, clearly visible
-against all three fills. Same control, two different mechanisms for the same
+stroke disappears into the rail and the fill difference does the work — the edge
+itself measures 1.00 against the rail there, which is fine, because the fill has
+already cleared the requirement. In dark theme it lifts to `oklch(0.70 0 0)` — a
+light grey outline, clearly visible against all three fills, carrying every
+boundary the fills cannot. Same control, two different mechanisms for the same
 requirement, chosen per theme.
 
 One implementation detail worth knowing if you restyle the tab: **a `border`
@@ -238,21 +240,36 @@ Measured from the exact values in the stylesheet, not eyeballed. WCAG 2.x asks
 4.5:1 for normal text (1.4.3) and 3:1 for the boundary of a user-interface
 component (1.4.11).
 
-| What is being measured              | Light | Dark  | Needs |
-| ----------------------------------- | ----- | ----- | ----- |
-| Label on an inactive tab            | 5.35  | 12.72 | ≥ 4.5 |
-| Label on the active tab             | 19.80 | 8.63  | ≥ 4.5 |
-| Inactive tab against the rail       | 3.03  | 1.22  | ≥ 3.0 |
-| Active tab / panel against the rail | 18.13 | 2.12  | ≥ 3.0 |
-| Edge stroke against the rail        | 1.00  | 7.12  | ≥ 3.0 |
-| Edge stroke against an inactive tab | 3.03  | 5.82  | ≥ 3.0 |
-| Edge stroke against the panel       | 18.13 | 3.36  | ≥ 3.0 |
-| Focus ring against an inactive tab  | 5.74  | 13.68 | ≥ 3.0 |
-| Focus ring against the panel        | 10.86 | 7.90  | ≥ 3.0 |
+The table below is **generated** by `tools/contrast.mjs` directly from
+`folder-tabs.css`, and CI fails if it drifts. Do not edit it by hand — regenerate
+it.
 
-Read the two boundary rows in the dark column and you will see them fail: 1.22
-and 2.12, against a requirement of 3.0. That is not an oversight. It is the
-reason `--tab-edge` exists.
+<!-- CONTRAST:START -->
+<!-- Generated by `npm run contrast -- --sync`. Do not edit by hand. -->
+
+|                            | light         | dark                            | needs |
+| -------------------------- | ------------- | ------------------------------- | ----- |
+| label on inactive tab      | **5.34**      | **12.64**                       | 4.5   |
+| label on active tab        | **19.79**     | **8.82**                        | 4.5   |
+| focus ring on inactive tab | **5.66**      | **13.43**                       | 3.0   |
+| focus ring on active tab   | **13.64**     | **7.96**                        | 3.0   |
+| inactive tab vs rail       | 3.02 by fill  | 1.23 by fill — **5.82** by edge | 3.0   |
+| active tab vs rail         | 18.11 by fill | 2.08 by fill — **3.45** by edge | 3.0   |
+| active tab vs inactive tab | 6.00 by fill  | 1.69 by fill — **3.45** by edge | 3.0   |
+
+<sub>Boundaries must clear 3.0 **by fill or by edge** — see below for why dark mode
+cannot pass on fill alone.</sub>
+<!-- CONTRAST:END -->
+
+Read the boundary rows in the dark column and some of them fail on fill alone:
+an inactive tab sits at 1.23 against the rail, and the active tab at 2.08,
+against a requirement of 3.0. That is not an oversight. It is the reason
+`--tab-edge` exists, and it is why the rule the tool enforces is an either/or:
+
+> Every boundary must clear 3.0 **by fill or by edge.** Not both — either.
+
+Light theme clears every boundary by fill. Dark theme clears them by edge. Both
+pass, by different routes.
 
 ### Why dark fills cannot carry a boundary
 
@@ -260,22 +277,25 @@ WCAG 2.x contrast is `(L1 + 0.05) / (L2 + 0.05)`, where `L` is relative
 luminance. That flat `0.05` is a flare term, meant to model light scattering in
 the eye and on the screen — and down near black it dominates the arithmetic.
 
-Work it through. A panel at `#494949` has a relative luminance of about 0.072.
-Against a **pure black** rail, the best possible ratio is
-`(0.072 + 0.05) / (0 + 0.05)` = **1.66**. There is no rail dark enough to reach
-3:1. The requirement is unreachable for any pair of genuinely dark fills, no
-matter how you choose them.
+Work it through with the shipped dark panel, `oklch(0.40 0 0)` — `#494949` in
+sRGB, relative luminance 0.067. Against a **pure black** rail, the best possible
+ratio is `(0.067 + 0.05) / (0 + 0.05)` = **2.33**. There is no rail dark enough
+to reach 3:1, because there is no rail darker than black. Take the panel down to
+`#333` and the ceiling drops to **1.66**. The requirement is simply unreachable
+for a pair of genuinely dark fills, however you choose them — and the darker you
+make the panel in pursuit of it, the worse it gets.
 
 So the boundary has to be carried by something that is _not_ a dark fill: a
-stroke. `--tab-edge` at `oklch(0.70 0 0)` clears 3:1 against the rail (7.12), the
-inactive tab (5.82), and the panel (3.36) simultaneously. Every tab boundary and
+stroke. `--tab-edge` at `oklch(0.70 0 0)` clears 3:1 against the rail (7.16), the
+inactive tab (5.82), and the panel (3.45) simultaneously. Every tab boundary and
 the panel border are drawn with it. This is precisely what the original Windows
 tab control did with its 3D border, for the same reason, on hardware that had
 even less to work with.
 
 In light theme the arithmetic is generous, so `--tab-edge` is set equal to
 `--tab-rail`, disappears, and lets the fill difference carry the boundary at
-3.03. One control, two mechanisms, each used where it works.
+3.02 — and the active tab separates from an inactive one at 6.00 on fill alone.
+One control, two mechanisms, each used where it works.
 
 ### The numbers are a set
 
@@ -289,33 +309,42 @@ background for `--tab-rail-ink` (needs ≥ 4.5), the foreground against
 `--tab-rail` in light theme (needs ≥ 3.0), and the background for both
 `--tab-edge` and `--tab-ring` (each needs ≥ 3.0). Those requirements pull in
 opposite directions, and the shipped values are where all of them are satisfied
-with the least slack. Look at light theme's 3.03 against a 3.0 requirement:
-there is no room at all. "Just nudge it a bit lighter" is never a safe edit here.
+with the least slack. Look at light theme's 3.02 against a 3.0 requirement:
+there is two hundredths of room. "Just nudge it a bit lighter" is never a safe edit here.
 
 ### How to re-measure
 
-The stylesheet header points at a script for this:
+Do not do it by hand. There is a script, and it is the single source of truth:
 
 ```bash
-npm run contrast
+npm run contrast              # measure and report
+npm run contrast -- --sync    # measure, and rewrite the generated tables
+npm run contrast -- --check   # verify without writing — this is what CI runs
 ```
 
-It re-measures every pair from the values in `folder-tabs.css` and tells you what
-you broke. Run it after any colour change, in both themes.
+It parses `folder-tabs.css`, measures every pair in both themes, checks the
+either/or rule on each boundary, and regenerates the table into `README.md` and
+into this page between the `CONTRAST:START` / `CONTRAST:END` markers. CI runs the
+`--check` mode, so the stylesheet and the docs cannot drift apart.
 
-If you are checking by hand instead:
+Two things to know before you reach for an eyedropper instead:
 
-1. Render the control at final size, in the theme you changed — **rendered
-   pixels**, not a swatch in a design tool. `opacity` on disabled tabs,
-   `color-mix()` on hover, and antialiasing along the clipped diagonal all change
-   what is actually on screen.
-2. Screenshot it and sample colours with an eyedropper.
-3. Put every pair in the table above through a WCAG contrast checker.
-4. Repeat for the **other** theme. A change to a shared value affects both.
-5. Record the numbers. If you are contributing upstream, the contrast table in
-   `README.md` must be updated in the same pull request, and the PR must say
-   which values you measured and with what tool. See
-   [Contributing](/guide/contributing).
+**Measure the `oklch()` declarations, not the hex.** The
+`@supports not (color: oklch(0 0 0))` block holds _rounded_ sRGB fallbacks. They
+are close, but they disagree with the real values in the second decimal — enough
+to turn a pass into a fail at a boundary sitting on 3.02. The `oklch()`
+declarations are authoritative; the hex is a convenience for old browsers.
+
+**Rendered pixels differ from declared values.** `opacity` on disabled tabs,
+`color-mix()` on hover, and antialiasing along the clipped diagonal all change
+what is actually on screen. The script measures the declared colours, which is
+the right thing for the boundaries and labels it checks — but if you are
+investigating something it does not cover, screenshot the control at final size
+and sample from that.
+
+If you are contributing upstream, run `npm run contrast -- --sync`, commit the
+regenerated tables, and say in the PR which values changed. See
+[Contributing](/guide/contributing).
 
 ### Disabled tabs
 

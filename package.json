@@ -50,7 +50,7 @@
   ],
   "scripts": {
     "contrast": "node tools/contrast.mjs",
-    "contrast:check": "node tools/contrast.mjs --check",
+    "contrast:check": "node tools/contrast.mjs --check && node tools/contrast.mjs --sync-check",
     "build:demo": "node tools/build-demo.mjs",
     "check:demo": "node tools/build-demo.mjs --check",
     "check": "npm run contrast:check && npm run check:demo && npm run test",
@@ -60,7 +60,8 @@
     "docs:dev": "npm --prefix docs run docs:dev",
     "docs:build": "npm --prefix docs run docs:build",
     "test": "node tools/smoke-test.mjs",
-    "screenshots": "node tools/screenshots.mjs"
+    "screenshots": "node tools/screenshots.mjs",
+    "contrast:sync": "node tools/contrast.mjs --sync"
   },
   "peerDependencies": {
     "@radix-ui/react-tabs": ">=1.0.0",

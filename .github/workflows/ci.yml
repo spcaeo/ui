@@ -63,9 +63,11 @@ jobs:
       - name: Install
         run: npm install --no-audit --no-fund
 
-      # The six fills are a measured set. This fails the build if a change to
+      # The fills are a measured set. This fails the build if a change to
       # one of them broke a contrast requirement somewhere else.
-      - name: Re-measure contrast
+      # Also verifies the tables printed in README.md and docs/guide/theming.md
+      # still match what the stylesheet actually measures.
+      - name: Re-measure contrast and check the published tables
         run: npm run contrast:check
 
       # demo.html inlines vanilla/folder-tabs.js so it works from file://.

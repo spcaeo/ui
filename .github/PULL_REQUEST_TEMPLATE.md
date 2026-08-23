@@ -10,7 +10,7 @@ Closes #
 - [ ] Tested **keyboard navigation** — Left/Right arrows, Home, End, and Tab in and out of the strip
 - [ ] Tested **overflow** by narrowing the window until the scroll arrows appear
 - [ ] Ran `npx prettier --check .` and it passes
-- [ ] I did **not** change any of the six colour variables in `folder-tabs.css`
+- [ ] I did **not** change any of the eight colour variables in `folder-tabs.css`
 
 ### If you did change a colour variable
 

@@ -58,7 +58,7 @@ Then, in the same pull request:
 A pull request that changes a colour without new measurements will be asked for
 them before review. This is the only strict rule in the project, and the reason
 it is strict is that the margins are genuinely thin — light theme's tab-against-
-rail boundary sits at 3.03 against a requirement of 3.0. There is no room for an
+rail boundary sits at 3.02 against a requirement of 3.0. There is no room for an
 unmeasured nudge.
 
 ## The other things not to break

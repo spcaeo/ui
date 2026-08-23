@@ -57,16 +57,16 @@ navigation of the screen. The reader had to guess.
 The `nested` prop puts `.fldr-nested` on the root, and the stylesheet reduces
 everything by one step:
 
-|                    | Outer               | Nested                     |
-| ------------------ | ------------------- | -------------------------- |
-| Rail padding       | `4px 4px 0`         | `3px 3px 0`                |
-| Rail radius        | `8px 8px 0 0`       | `6px 6px 0 0`              |
-| Tab font size      | `13px`              | `12px`                     |
-| Tab padding        | `6px 18px 6px 13px` | `4px 17px 4px 11px`        |
-| Active tab padding | `9px … 7px`         | `6px … 5px`                |
-| Panel padding      | `16px`              | `14px`                     |
-| Panel radius       | `0 0 8px 8px`       | `0 0 6px 6px`              |
-| **Fills**          | The six variables   | **The same six variables** |
+|                    | Outer               | Nested                       |
+| ------------------ | ------------------- | ---------------------------- |
+| Rail padding       | `4px 4px 0`         | `3px 3px 0`                  |
+| Rail radius        | `8px 8px 0 0`       | `6px 6px 0 0`                |
+| Tab font size      | `13px`              | `12px`                       |
+| Tab padding        | `6px 18px 6px 13px` | `4px 17px 4px 11px`          |
+| Active tab padding | `9px … 7px`         | `6px … 5px`                  |
+| Panel padding      | `16px`              | `14px`                       |
+| Panel radius       | `0 0 8px 8px`       | `0 0 6px 6px`                |
+| **Fills**          | The eight variables | **The same eight variables** |
 
 Every dimension shrinks. No colour changes.
 
@@ -88,10 +88,10 @@ product, not just this one.
 
 There is a second reason, and it is the mechanic again. The nested control has to
 maintain the same three-fill relationship — its active tab must equal its panel
-fill, and its rail must be darkest. A second colourway means a second set of six
-values, measured separately, in both themes, maintained forever. Twelve more
-numbers to keep in a set, in exchange for a distinction that is already carried
-by size. That is a bad trade.
+fill, and its rail must be darkest. A second colourway means a second set of
+eight values, measured separately, in both themes, maintained forever — sixteen
+more numbers to keep in a set, in exchange for a distinction that is already
+carried by size. That is a bad trade.
 
 So: **same fills, one size down.** The nested control sits inside a panel that is
 already `--tab-panel`, and its own rail is `--tab-rail`, so it reads as a darker

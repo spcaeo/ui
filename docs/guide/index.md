@@ -158,6 +158,6 @@ everything on this site still applies.
   vanilla, React.
 - [Quick Start](/guide/quick-start) — the shortest working example of each.
 - [The Mechanic](/guide/the-mechanic) — the long version of the idea above.
-- [Theming](/guide/theming) — the six variables, the dark-mode trap, and the
+- [Theming](/guide/theming) — the eight variables, the dark-mode trap, and the
   contrast numbers.
 - [Accessibility](/guide/accessibility) — the ARIA tab pattern as implemented.
