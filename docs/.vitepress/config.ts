@@ -113,8 +113,10 @@ export default defineConfig({
     outline: { level: [2, 3], label: "On this page" },
 
     footer: {
-      message: "Released under the MIT Licence.",
-      copyright: "Copyright © 2026 spcaeo",
+      message:
+        'Released under the MIT Licence. Built by <a href="https://www.spaceo.ca" target="_blank" rel="noopener">Space-O Technologies</a>.',
+      copyright:
+        'Copyright © 2026 <a href="https://github.com/spcaeo/ui">spcaeo</a> · <a href="https://www.spaceo.ca">www.spaceo.ca</a>',
     },
 
     lastUpdated: {
