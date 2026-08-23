@@ -24,8 +24,9 @@ component-agnostic and built for more.
 | Node      | 22 (`.nvmrc`); works on ≥18                                                |
 | Release   | `v1.0.0` (tagged while the repo was still named `vb-inspired-folder-tabs`) |
 
-**Local checkout still lives at `~/Desktop/folder-tabs`** even though the repo is
-now `ui`. The directory name was never changed; nothing depends on it.
+**Local checkout is `~/Desktop/ui`**, matching the repo name. It was originally
+`~/Desktop/folder-tabs`; if an old terminal or editor still points there, reopen
+it at the new path.
 
 ## 2. How it got here
 
