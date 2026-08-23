@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folder Tabs</title>
+<link rel="stylesheet" href="folder-tabs.css">
+<style>
+  body { margin:0; padding:40px 24px 80px; background:#fafafa; color:#171717;
+         font:14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
+  .dark body, body.dark { background:#0f0f0f; color:#fafafa; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-size:26px; font-weight:600; letter-spacing:-.02em; margin:0 0 6px; }
+  p.lede { color:#737373; margin:0 0 28px; max-width:64ch; }
+  .dark p.lede { color:#a3a3a3; }
+  section { margin-bottom:34px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:#737373;
+       font-weight:500; margin:0 0 10px; }
+  .dark h2 { color:#a3a3a3; }
+  button.theme { position:fixed; top:16px; right:16px; padding:7px 13px; border-radius:999px;
+                 border:1px solid #e5e5e5; background:#fff; font:inherit; font-size:12px; cursor:pointer; }
+  .dark button.theme { background:#262626; border-color:#404040; color:#fafafa; }
+</style>
+</head>
+<body>
+<button class="theme" type="button" onclick="document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark')">Toggle theme</button>
+
+<div class="wrap">
+  <h1>Folder tabs</h1>
+  <p class="lede">
+    The active tab is the panel, continuing upward. Click, arrow-key, narrow the
+    window until the arrows appear, and toggle the theme.
+  </p>
+
+  <section>
+    <h2>Four sections, one disabled</h2>
+    <div data-folder-tabs>
+      <div class="fldr-rail" role="tablist" aria-label="Sections">
+        <div class="fldr-scroll">
+          <button class="fldr-tab" role="tab" data-state="active" aria-selected="true" aria-controls="a1">Rules</button>
+          <button class="fldr-tab" role="tab" data-state="inactive" aria-selected="false" aria-controls="a2">Dates</button>
+          <button class="fldr-tab" role="tab" data-state="inactive" aria-selected="false" aria-controls="a3" disabled title="Nothing to preview yet">Preview</button>
+          <button class="fldr-tab" role="tab" data-state="inactive" aria-selected="false" aria-controls="a4">Jurisdiction</button>
+        </div>
+        <div class="fldr-arrows">
+          <button class="fldr-arrow" data-dir="-1" tabindex="-1" aria-label="Scroll tabs left">‹</button>
+          <button class="fldr-arrow" data-dir="1" tabindex="-1" aria-label="Scroll tabs right">›</button>
+        </div>
+      </div>
+      <div class="fldr-panel" id="a1">Three rules in force. A closure always beats an opening.</div>
+      <div class="fldr-panel" id="a2" hidden>Camp weeks, closures and term dates.</div>
+      <div class="fldr-panel" id="a3" hidden>Preview.</div>
+      <div class="fldr-panel" id="a4" hidden>Chat may be open at most 16 hours a day here.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Nested — a tab control inside a tab panel</h2>
+    <div data-folder-tabs>
+      <div class="fldr-rail" role="tablist" aria-label="Organisation">
+        <div class="fldr-scroll">
+          <button class="fldr-tab" role="tab" data-state="active" aria-selected="true" aria-controls="b1">Configuration</button>
+          <button class="fldr-tab" role="tab" data-state="inactive" aria-selected="false" aria-controls="b2">Audit</button>
+        </div>
+        <div class="fldr-arrows">
+          <button class="fldr-arrow" data-dir="-1" tabindex="-1" aria-label="Scroll tabs left">‹</button>
+          <button class="fldr-arrow" data-dir="1" tabindex="-1" aria-label="Scroll tabs right">›</button>
+        </div>
+      </div>
+      <div class="fldr-panel" id="b1">
+        <div data-folder-tabs class="fldr-nested">
+          <div class="fldr-rail" role="tablist" aria-label="Settings">
+            <div class="fldr-scroll">
+              <button class="fldr-tab" role="tab" data-state="active" aria-selected="true" aria-controls="c1">Consent</button>
+              <button class="fldr-tab" role="tab" data-state="inactive" aria-selected="false" aria-controls="c2">Curfew</button>
+              <button class="fldr-tab" role="tab" data-state="inactive" aria-selected="false" aria-controls="c3">Retention</button>
+            </div>
+            <div class="fldr-arrows">
+              <button class="fldr-arrow" data-dir="-1" tabindex="-1" aria-label="Scroll tabs left">‹</button>
+              <button class="fldr-arrow" data-dir="1" tabindex="-1" aria-label="Scroll tabs right">›</button>
+            </div>
+          </div>
+          <div class="fldr-panel" id="c1">Consent is required below age 16.</div>
+          <div class="fldr-panel" id="c2" hidden>07:00 – 21:00 on the young person's clock.</div>
+          <div class="fldr-panel" id="c3" hidden>Removed messages are kept for 365 days.</div>
+        </div>
+      </div>
+      <div class="fldr-panel" id="b2" hidden>Every change, in order, attributable.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Overflow — eleven tabs</h2>
+    <div data-folder-tabs>
+      <div class="fldr-rail" role="tablist" aria-label="Many">
+        <div class="fldr-scroll" id="many"></div>
+        <div class="fldr-arrows">
+          <button class="fldr-arrow" data-dir="-1" tabindex="-1" aria-label="Scroll tabs left">‹</button>
+          <button class="fldr-arrow" data-dir="1" tabindex="-1" aria-label="Scroll tabs right">›</button>
+        </div>
+      </div>
+      <div class="fldr-panel" id="d1">Arrows disable at the ends rather than vanishing.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // The tab list for the overflow demo, built in code so the markup above stays
+  // readable.
+  const many = document.getElementById("many");
+  ["Rules","Dates","Preview","Jurisdiction","Chapters","Exceptions","Public holidays",
+   "Camp weeks","Audit trail","Notifications","Retention"].forEach((label, i) => {
+    const b = document.createElement("button");
+    b.className = "fldr-tab";
+    b.setAttribute("role", "tab");
+    b.dataset.state = i === 0 ? "active" : "inactive";
+    b.setAttribute("aria-selected", String(i === 0));
+    if (i === 0) b.setAttribute("aria-controls", "d1");
+    b.textContent = label;
+    many.appendChild(b);
+  });
+</script>
+
+<!--
+  INLINED, not imported.
+
+  `vanilla/folder-tabs.js` is the module to use in a real project. This copy is
+  inlined so the demo works when the file is opened straight from Finder:
+  file:// refuses ES module imports on CORS grounds, so an `import` here loads
+  nothing and the page looks broken for a reason that has nothing to do with the
+  control. A demo that only works behind a web server is a demo that gets
+  reported as a bug.
+-->
+<script>
+/**
+ * FOLDER TABS — no framework, no dependencies.
+ *
+ * The same control as the React version, for a page that has no React. Give it
+ * the markup below and call `initFolderTabs()`.
+ *
+ *   <div class="fldr" data-folder-tabs>
+ *     <div class="fldr-rail" role="tablist" aria-label="Sections">
+ *       <div class="fldr-scroll">
+ *         <button class="fldr-tab" role="tab" data-state="active" aria-controls="p1">Rules</button>
+ *         <button class="fldr-tab" role="tab" data-state="inactive" aria-controls="p2">Dates</button>
+ *       </div>
+ *       <div class="fldr-arrows">
+ *         <button class="fldr-arrow" data-dir="-1" tabindex="-1" aria-label="Scroll tabs left">‹</button>
+ *         <button class="fldr-arrow" data-dir="1"  tabindex="-1" aria-label="Scroll tabs right">›</button>
+ *       </div>
+ *     </div>
+ *     <div class="fldr-panel" id="p1">…</div>
+ *     <div class="fldr-panel" id="p2" hidden>…</div>
+ *   </div>
+ *
+ * Nest by putting another `[data-folder-tabs]` inside a panel and adding
+ * `fldr-nested` to it.
+ */
+function initFolderTabs(root = document) {
+  root.querySelectorAll("[data-folder-tabs]").forEach(setup);
+}
+
+function setup(host) {
+  const rail = host.querySelector(":scope > .fldr-rail");
+  const strip = rail?.querySelector(":scope > .fldr-scroll");
+  const tabs = strip ? [...strip.querySelectorAll('[role="tab"]')] : [];
+  if (!tabs.length) return;
+
+  // Roving focus: exactly one tab in the tab sequence, so Tab moves PAST the
+  // strip rather than through every tab in it.
+  tabs.forEach((t) => (t.tabIndex = t.dataset.state === "active" ? 0 : -1));
+
+  const nextUsable = (from, step) => {
+    for (let n = 0; n < tabs.length; n++) {
+      from = (from + step + tabs.length) % tabs.length;
+      if (!tabs[from].disabled) return from;
+    }
+    return -1;
+  };
+
+  function select(index) {
+    tabs.forEach((tab, i) => {
+      const on = i === index;
+      tab.dataset.state = on ? "active" : "inactive";
+      tab.setAttribute("aria-selected", String(on));
+      tab.tabIndex = on ? 0 : -1;
+      const panel = tab.getAttribute("aria-controls");
+      if (panel) {
+        const el = host.querySelector(`#${CSS.escape(panel)}`);
+        if (el) el.hidden = !on;
+      }
+    });
+    // With overflow, a tab chosen by keyboard can be off-screen. Focus that
+    // cannot be seen is the failure that makes a scrolling tab strip unusable.
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => !tab.disabled && select(i));
+    tab.addEventListener("keydown", (event) => {
+      const map = { ArrowRight: 1, ArrowLeft: -1 };
+      let target = null;
+      if (event.key in map) target = nextUsable(i, map[event.key]);
+      if (event.key === "Home") target = tabs[0].disabled ? nextUsable(0, 1) : 0;
+      if (event.key === "End") target = nextUsable(0, -1);
+      if (target === null || target < 0) return;
+      event.preventDefault();
+      select(target);
+      tabs[target].focus();
+    });
+  });
+
+  // Arrows: shown only on real overflow, and DISABLED at each end rather than
+  // removed — a control that changes width under the cursor misfires.
+  const arrows = rail.querySelector(":scope > .fldr-arrows");
+  if (!arrows) return;
+  const [left, right] = arrows.querySelectorAll(".fldr-arrow");
+
+  const sync = () => {
+    const over = strip.scrollWidth > strip.clientWidth + 1;
+    arrows.dataset.overflowing = String(over);
+    left.disabled = strip.scrollLeft <= 1;
+    right.disabled = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1;
+  };
+
+  [left, right].forEach((button) =>
+    button.addEventListener("click", () =>
+      strip.scrollBy({ left: Number(button.dataset.dir) * Math.max(140, strip.clientWidth * 0.7) }),
+    ),
+  );
+
+  strip.addEventListener("scroll", sync, { passive: true });
+  window.addEventListener("resize", sync);
+  if (window.ResizeObserver) new ResizeObserver(sync).observe(strip);
+  sync();
+}
+
+  initFolderTabs();
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+/*
+ * FOLDER TABS — standalone stylesheet. No Tailwind, no build step.
+ *
+ * THE MECHANIC, which is the only part that matters:
+ *
+ *   Three fills in a fixed relationship. The rail is darkest. An inactive tab
+ *   sits above it. The ACTIVE TAB IS THE PANEL'S OWN FILL — it is not
+ *   highlighted, it IS the panel, continuing upward.
+ *
+ * Shape and shared fill carry the state, and both survive a greyscale print.
+ * Change one of the six values below and re-measure the rest: they are a set,
+ * not preferences. Measured on rendered pixels — label on tab 5.35, tab against
+ * rail 3.03 in light; 4.53 and 3.23 in dark. WCAG asks 4.5 and 3.0.
+ */
+
+:root {
+  --tab-rail: oklch(0.20 0.02 260);       /* the band the tabs stand on */
+  --tab-rail-fill: oklch(0.50 0.03 260);  /* an inactive tab */
+  --tab-rail-ink: oklch(0.96 0 0);        /* its label */
+  --tab-panel: oklch(1 0 0);              /* the panel AND the active tab */
+  --tab-panel-ink: oklch(0.145 0 0);
+  --tab-ring: oklch(0.708 0 0);           /* focus */
+}
+
+/*
+ * Dark mode inverts the mechanic if you are not careful, and this is the single
+ * easiest thing to get wrong. The active tab must stay the LIGHTEST of the
+ * three, because it is the panel. Borrow a card colour that happens to be
+ * darker than the tab fill and the selected tab reads as pressed IN while the
+ * unselected ones read as raised — exactly backwards. Dark mode has less usable
+ * range below "a panel you can read", which is why the panel gets its own
+ * variable here rather than reusing a surface token.
+ */
+.dark,
+[data-theme="dark"] {
+  --tab-rail: oklch(0.19 0.02 260);
+  --tab-rail-fill: oklch(0.25 0.02 260);
+  --tab-rail-ink: oklch(0.90 0 0);
+  --tab-panel: oklch(0.32 0 0);
+  --tab-panel-ink: oklch(0.985 0 0);
+  --tab-ring: oklch(0.556 0 0);
+}
+
+/* --- the rail ----------------------------------------------------------- */
+
+.fldr-rail {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  padding: 4px 4px 0;
+  background: var(--tab-rail);
+  border-radius: 8px 8px 0 0;
+}
+
+.fldr-scroll {
+  display: flex;
+  align-items: flex-end;
+  /*
+    3px, and the tabs do NOT overlap. An earlier version pulled each tab 6px
+    under its neighbour to tuck like a card index — but with every inactive tab
+    on one fill that is a single block with notches in it. The rail showing
+    through a real gap is what separates one tab from the next.
+  */
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.fldr-scroll::-webkit-scrollbar { display: none; }
+
+/* --- a tab -------------------------------------------------------------- */
+
+/*
+  `clip-path` cuts the angled right edge — an actual trapezoid, the way a card
+  index is cut, not a rounded rectangle standing in for one.
+*/
+.fldr-tab {
+  position: relative;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 6px 18px 6px 13px;
+  border: 0;
+  border-radius: 6px 0 0 0;
+  background: var(--tab-rail-fill);
+  color: var(--tab-rail-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%);
+  transition: background-color 120ms, color 120ms, filter 120ms;
+}
+
+.fldr-tab:hover:not(:disabled):not([data-state="active"]) { filter: brightness(1.12); }
+.fldr-tab:focus-visible { outline: 2px solid var(--tab-ring); outline-offset: -3px; z-index: 3; }
+.fldr-tab:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ACTIVE: the panel's own fill, and taller, so it stands proud of the rail. */
+.fldr-tab[data-state="active"] {
+  z-index: 2;
+  padding-top: 9px;
+  padding-bottom: 7px;
+  background: var(--tab-panel);
+  color: var(--tab-panel-ink);
+  font-weight: 600;
+}
+
+/* --- overflow arrows ---------------------------------------------------- */
+
+/*
+  Inside the rail, at its right end — part of the control rather than furniture
+  beside it. They DISABLE at each end rather than disappearing: a control that
+  changes width under the cursor is a control that misfires.
+*/
+.fldr-arrows {
+  display: none;
+  flex: 0 0 auto;
+  gap: 1px;
+  padding: 0 2px 3px;
+}
+.fldr-arrows[data-overflowing="true"] { display: flex; }
+
+.fldr-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--tab-rail-fill);
+  color: var(--tab-rail-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.fldr-arrow:hover:not(:disabled) { filter: brightness(1.12); }
+.fldr-arrow:disabled { opacity: 0.3; cursor: default; }
+.fldr-arrow:focus-visible { outline: 2px solid var(--tab-ring); outline-offset: 1px; }
+
+/* --- the panel ---------------------------------------------------------- */
+
+.fldr-panel {
+  background: var(--tab-panel);
+  color: var(--tab-panel-ink);
+  border: 1px solid var(--tab-rail);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  padding: 16px;
+}
+
+/*
+  FLUSH — for a panel whose content brings its own card and padding, such as a
+  grid. It drops the padding but KEEPS the ground and the side walls. Drop those
+  too and the rail floats above bare page with nothing beneath it: the active
+  tab has no panel to be continuous WITH, which is the entire mechanism.
+*/
+.fldr-panel-flush { padding: 14px 14px 4px; }
+
+/* --- nested ------------------------------------------------------------- */
+
+/*
+  The same control one size down, so level two is unmistakably inside level one.
+  Same fills on purpose: it is the same kind of thing one level down, and a
+  second colourway would claim otherwise.
+*/
+.fldr-nested > .fldr-rail { padding: 3px 3px 0; border-radius: 6px 6px 0 0; }
+.fldr-nested > .fldr-rail .fldr-tab { font-size: 12px; padding: 4px 17px 4px 11px; }
+.fldr-nested > .fldr-rail .fldr-tab[data-state="active"] { padding-top: 6px; padding-bottom: 5px; }
+.fldr-nested > .fldr-panel { padding: 14px; border-radius: 0 0 6px 6px; }
+
+/* The nested SIZE without a nested ancestor — for a strip that is a rail in its
+   own right, such as a grid's segment row inside a panel. */
+.fldr-nested-rail { padding: 3px 3px 0; }
+.fldr-nested-rail .fldr-tab { font-size: 12px; padding: 4px 17px 4px 11px; }
+.fldr-nested-rail .fldr-tab[data-state="active"] { padding-top: 6px; padding-bottom: 5px; }
