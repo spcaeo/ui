@@ -195,4 +195,3 @@ your copy renders that correctly you have copied everything you need.
 </div>
 
 <p class="shot-caption">demo.html in full. If your copy looks like this, everything is wired correctly.</p>
-

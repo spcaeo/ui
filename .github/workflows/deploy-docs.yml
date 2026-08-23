@@ -35,6 +35,10 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v4
+        with:
+          # Turn Pages on if it is not already. Without this the very first run
+          # on a new repo fails with "Get Pages site failed" before it can build.
+          enablement: true
 
       - name: Install dependencies
         working-directory: docs
