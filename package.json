@@ -50,7 +50,7 @@
   ],
   "scripts": {
     "contrast": "node tools/contrast.mjs",
-    "contrast:check": "node tools/contrast.mjs --check && node tools/contrast.mjs --sync-check",
+    "contrast:check": "node tools/contrast.mjs --check",
     "build:demo": "node tools/build-demo.mjs",
     "check:demo": "node tools/build-demo.mjs --check",
     "check": "npm run contrast:check && npm run check:demo && npm run test",

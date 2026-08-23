@@ -36,24 +36,34 @@ Every value was chosen so that:
 
 - label text keeps at least **4.5:1** against the tab it sits on (WCAG 1.4.3),
   and
-- every interface boundary keeps at least **3.0:1** (WCAG 1.4.11) — carried by
-  the fill difference in light theme and by the `--tab-edge` stroke in dark,
-  because [no two genuinely dark fills can reach 3:1](/guide/theming#why-dark-fills-cannot-carry-a-boundary).
+- every interface boundary clears at least **3.0:1** (WCAG 1.4.11) **by fill or
+  by the `--tab-edge` stroke** — either route counts, which is the only reason
+  dark mode can pass at all, because
+  [no two genuinely dark fills can reach 3:1](/guide/theming#why-dark-fills-cannot-carry-a-boundary).
 
-There is a script for this:
+Do not measure by hand. There is a script, and it is the single source of truth:
 
 ```bash
-npm run contrast
+npm run contrast              # measure and report
+npm run contrast -- --sync    # measure, and rewrite the generated tables
+npm run contrast -- --check   # verify without writing — this is what CI runs
 ```
 
-It recomputes every pair from the values in `folder-tabs.css` and tells you what
-you broke.
+It parses `folder-tabs.css`, checks every pair in both themes, and regenerates
+the contrast tables in `README.md` and in
+[Theming](/guide/theming#contrast) between their `CONTRAST:START` /
+`CONTRAST:END` markers. CI runs `--check`, so the stylesheet and the docs cannot
+disagree.
 
 Then, in the same pull request:
 
-1. Update the contrast table in `README.md` with the new numbers.
-2. Update the table in [Theming](/guide/theming#contrast) on this site.
-3. Say in the PR description which values you measured and what tool you used.
+1. Run `npm run contrast -- --sync` and **commit the regenerated tables**. Do not
+   hand-edit them, and do not put anything between the markers — it is
+   overwritten.
+2. Measure the `oklch()` declarations, not the sRGB hex in the
+   `@supports` block. Those fallbacks are rounded and disagree in the second
+   decimal, which is enough to flip a boundary sitting on 3.02.
+3. Say in the PR description which values changed.
 
 A pull request that changes a colour without new measurements will be asked for
 them before review. This is the only strict rule in the project, and the reason
@@ -92,7 +102,7 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 ## Before you open the PR
 
 1. `npx prettier --check .`
-2. `npm run contrast` if you touched a colour.
+2. `npm run contrast -- --check` if you touched a colour.
 3. Test in **light and dark** theme.
 4. Test with the **keyboard** — arrows, Home, End, Tab.
 5. Test at a **narrow width**, so the overflow arrows appear and disable.

@@ -200,6 +200,8 @@ function sync(check) {
   }
 }
 
+const wantsCheck = process.argv.includes("--check");
+
 if (process.argv.includes("--markdown")) {
   console.log(markdown());
 } else if (process.argv.includes("--sync") || process.argv.includes("--sync-check")) {
@@ -230,4 +232,9 @@ if (process.argv.includes("--markdown")) {
   console.log("All contrast requirements met.\n");
 }
 
-if (process.argv.includes("--check") && failed) process.exit(1);
+// `--check` verifies everything a reviewer would: the ratios themselves AND
+// that the tables published in README.md and the docs still match them.
+if (wantsCheck) {
+  if (failed) process.exit(1);
+  sync(true);
+}
