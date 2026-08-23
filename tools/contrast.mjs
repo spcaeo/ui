@@ -56,6 +56,9 @@ function measure(component) {
 /** The table the component README and its docs page both show. */
 function markdown({ results }) {
   const themeNames = Object.keys(results);
+  const usesEdge = Object.values(results)
+    .flat()
+    .some((r) => r.note.includes("by edge"));
   const labels = results[themeNames[0]].map((r) => r.label);
   const cell = (r) => (r.boundary ? r.note : `**${r.note}**`);
   return [
@@ -68,8 +71,13 @@ function markdown({ results }) {
       return `| ${label} | ${cells.join(" | ")} | ${results[themeNames[0]][i].need.toFixed(1)} |`;
     }),
     "",
-    "<sub>Boundaries must clear 3.0 **by fill or by edge** — see below for why a dark",
-    "theme cannot pass on fill alone.</sub>",
+    // Only explain the edge route when this component actually relies on it.
+    // A footnote about a mechanism the reader cannot see in the table above is
+    // noise, and it makes the generated block look boilerplate rather than
+    // measured.
+    usesEdge
+      ? "<sub>A boundary passes on **fill or edge**: three genuinely dark fills cannot sit 3:1\napart, so the stroke carries it. See the notes below.</sub>"
+      : "<sub>Text needs 4.5:1 (WCAG 1.4.3); boundaries need 3:1 (WCAG 1.4.11).</sub>",
   ].join("\n");
 }
 

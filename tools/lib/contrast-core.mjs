@@ -65,12 +65,22 @@ export function readVars(css, selector, prefix) {
   const open = css.indexOf("{", at);
   const body = css.slice(open + 1, css.indexOf("}", open));
   const vars = {};
-  const re = new RegExp(
-    `--${prefix}-([a-z-]+)\\s*:\\s*oklch\\(\\s*([\\d.]+)\\s+([\\d.]+)\\s+([\\d.]+)\\s*\\)`,
-    "g",
-  );
-  for (const [, name, L, C, H] of body.matchAll(re)) {
-    vars[name] = [Number(L), Number(C), Number(H)];
+  /*
+    Match the whole declaration, then find the first oklch() inside its value.
+    That handles a plain `--x: oklch(...)` and also the host-theme interop form
+    `--x: var(--background, oklch(...))`, where the oklch is the FALLBACK — the
+    colour that actually renders when no host design system is present.
+
+    That fallback is the only thing we can honestly measure. If a host theme is
+    supplying the real colours, the host owns the contrast, and claiming a ratio
+    for colours we did not define would be exactly the unverified assertion this
+    tool exists to prevent.
+  */
+  const decl = new RegExp(`--${prefix}-([a-z-]+)\\s*:\\s*([^;]+)`, "g");
+  const oklchRe = /oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)/;
+  for (const [, name, value] of body.matchAll(decl)) {
+    const hit = value.match(oklchRe);
+    if (hit) vars[name] = [Number(hit[1]), Number(hit[2]), Number(hit[3])];
   }
   if (!Object.keys(vars).length) throw new Error(`no --${prefix}-* oklch vars under ${selector}`);
   return vars;

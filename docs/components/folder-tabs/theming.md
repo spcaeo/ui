@@ -257,8 +257,8 @@ it.
 | active tab vs rail         | 18.11 by fill | 2.08 by fill — **3.45** by edge | 3.0   |
 | active tab vs inactive tab | 6.00 by fill  | 1.69 by fill — **3.45** by edge | 3.0   |
 
-<sub>Boundaries must clear 3.0 **by fill or by edge** — see below for why a dark
-theme cannot pass on fill alone.</sub>
+<sub>A boundary passes on **fill or edge**: three genuinely dark fills cannot sit 3:1
+apart, so the stroke carries it. See the notes below.</sub>
 <!-- CONTRAST:END -->
 
 Read the boundary rows in the dark column and some of them fail on fill alone:

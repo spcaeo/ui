@@ -1,0 +1,125 @@
+{
+  "name": "data-grid",
+  "title": "Data Grid",
+  "tagline": "A listing grid whose entire state lives in the URL, so any view can be shared, bookmarked and reloaded.",
+  "status": "beta",
+  "since": "1.1.0",
+  "css": "data-grid.css",
+  "demo": "demo.html",
+  "vanilla": "vanilla/data-grid.js",
+  "react": "react/data-grid.tsx",
+  "reactPeerDeps": [],
+  "docs": "/components/data-grid/",
+  "screenshotDir": "data-grid",
+  "contrast": {
+    "prefix": "dg",
+    "themes": {
+      "light": ":root {",
+      "dark": ".dark,"
+    },
+    "tables": ["README.md"],
+    "text": [
+      {
+        "label": "body text on background",
+        "fg": "fg",
+        "bg": "bg",
+        "need": 4.5
+      },
+      {
+        "label": "muted text on background",
+        "fg": "muted-fg",
+        "bg": "bg",
+        "need": 4.5
+      },
+      {
+        "label": "column header on header fill",
+        "fg": "muted-fg",
+        "bg": "muted",
+        "need": 4.5
+      },
+      {
+        "label": "primary button label",
+        "fg": "primary-fg",
+        "bg": "primary",
+        "need": 4.5
+      },
+      {
+        "label": "error text on background",
+        "fg": "danger",
+        "bg": "bg",
+        "need": 4.5
+      },
+      {
+        "label": "focus ring on background",
+        "fg": "ring",
+        "bg": "bg",
+        "need": 3.0
+      },
+      {
+        "label": "focus ring on header fill",
+        "fg": "ring",
+        "bg": "muted",
+        "need": 3.0
+      }
+    ],
+    "boundaries": [
+      {
+        "label": "control border vs background",
+        "a": "control-border",
+        "b": "bg",
+        "need": 3.0
+      },
+      {
+        "label": "control border vs header fill",
+        "a": "control-border",
+        "b": "muted",
+        "need": 3.0
+      },
+      {
+        "label": "primary button vs background",
+        "a": "primary",
+        "b": "bg",
+        "edge": "control-border",
+        "need": 3.0
+      }
+    ]
+  },
+  "demoInline": {
+    "source": [
+      "core/filter-model.mjs",
+      "core/query.mjs",
+      "core/url-state.mjs",
+      "vanilla/data-grid.js"
+    ],
+    "target": "demo.html",
+    "startMarker": "/* DG:INLINE:START — generated from core/ + vanilla/. Do not edit by hand. */",
+    "endMarker": "/* DG:INLINE:END */"
+  },
+  "shots": [
+    {
+      "name": "grid-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "selector": "#demo-default"
+    },
+    {
+      "name": "states-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "selector": "#demo-states"
+    },
+    {
+      "name": "shadcn-theme",
+      "page": "demo.html",
+      "themes": ["light"],
+      "selector": "#demo-shadcn",
+      "why": "the same grid inheriting a host design system's tokens, unmodified"
+    },
+    {
+      "name": "demo-{theme}",
+      "page": "demo.html",
+      "themes": ["light", "dark"],
+      "fullPage": true
+    }
+  ]
+}

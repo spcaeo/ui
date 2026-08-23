@@ -1,0 +1,1517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Grid</title>
+<meta name="description" content="A listing grid whose entire state lives in the URL. Zero dependencies.">
+<link rel="stylesheet" href="data-grid.css">
+<style>
+  :root { --page:#fbfbfb; --ink:#171717; --dim:#737373; --hair:#e5e5e5; --panel:#fff; }
+  html.dark { --page:#0e0e0e; --ink:#fafafa; --dim:#a3a3a3; --hair:#2a2a2a; --panel:#181818; }
+  @media (prefers-color-scheme: dark) {
+    html:not(.light) { --page:#0e0e0e; --ink:#fafafa; --dim:#a3a3a3; --hair:#2a2a2a; --panel:#181818; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:44px 24px 90px; background:var(--page); color:var(--ink);
+         font:14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+         -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  h1 { font-size:28px; font-weight:650; letter-spacing:-.022em; margin:0 0 8px; }
+  p.lede { color:var(--dim); margin:0 0 8px; max-width:70ch; }
+  .urlbar { display:flex; gap:8px; align-items:center; margin:0 0 30px; padding:10px 12px;
+            border:1px solid var(--hair); border-radius:10px; background:var(--panel);
+            font:12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--dim);
+            overflow:hidden; }
+  .urlbar b { color:var(--ink); font-weight:600; font-family:inherit; }
+  .urlbar code { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  section { margin-bottom:44px; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.09em; color:var(--dim);
+       font-weight:600; margin:0 0 4px; }
+  h2 + p { color:var(--dim); margin:0 0 14px; font-size:13px; max-width:70ch; }
+  button.theme { position:fixed; top:16px; right:16px; padding:8px 14px; border-radius:999px;
+                 border:1px solid var(--hair); background:var(--panel); color:var(--ink);
+                 font:inherit; font-size:12px; font-weight:500; cursor:pointer; z-index:9; }
+  .states { display:grid; gap:14px; }
+  .badge { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px;
+           border:1px solid currentColor; }
+  .b-active { color:#15803d; } .b-pending { color:#a16207; }
+  .b-suspended { color:#b91c1c; } .b-archived { color:#6b7280; }
+  html.dark .b-active { color:#4ade80; } html.dark .b-pending { color:#fbbf24; }
+  html.dark .b-suspended { color:#f87171; } html.dark .b-archived { color:#9ca3af; }
+
+  /*
+    A stand-in for a host design system. These are shadcn/ui's token names, set
+    to a deliberately different palette so it is obvious the grid is reading
+    them rather than using its own fallbacks. The grid below is not configured
+    differently in any way — it just inherits.
+  */
+  .fake-shadcn {
+    --background: oklch(0.99 0.005 265); --foreground: oklch(0.21 0.03 265);
+    --muted: oklch(0.96 0.01 265);       --muted-foreground: oklch(0.44 0.02 265);
+    --border: oklch(0.90 0.015 265);     --input: oklch(0.60 0.02 265);
+    --accent: oklch(0.95 0.02 265);      --popover: oklch(1 0 0);
+    --primary: oklch(0.48 0.18 265);     --primary-foreground: oklch(0.99 0 0);
+    --ring: oklch(0.48 0.18 265);        --destructive: oklch(0.45 0.19 27);
+    --radius: 10px;
+    padding:14px; border:1px dashed var(--hair); border-radius:12px;
+  }
+</style>
+</head>
+<body>
+<button class="theme" type="button" id="theme">Toggle theme</button>
+
+<div class="wrap">
+  <h1>Data grid</h1>
+  <p class="lede">
+    A bookshop's stock list. Search, filter, sort, page and select — and every
+    one of those lives in the URL. Change anything below, then copy the address
+    bar into a new tab: you land on exactly this view.
+  </p>
+  <p class="urlbar"><b>URL</b><code id="urlecho">—</code></p>
+
+  <section>
+    <h2>The grid</h2>
+    <p>Zero dependencies. The filter menus are native popovers, not a library.</p>
+    <div id="demo-default"></div>
+  </section>
+
+  <section>
+    <h2>Inheriting a host design system</h2>
+    <p>
+      The same component, unmodified, inside an element that defines shadcn/ui's
+      CSS variables. It imports nothing from the host — it just reads the tokens
+      if they are there, so it cannot duplicate or collide with anything.
+    </p>
+    <div class="fake-shadcn"><div id="demo-shadcn"></div></div>
+  </section>
+
+  <section>
+    <h2>The states are not interchangeable</h2>
+    <p>
+      A failed request is not a count of zero, and "nothing matched your filter"
+      is not "nothing exists". Collapsing these into one card is the most common
+      grid bug there is.
+    </p>
+    <div class="states">
+      <div id="demo-states"></div>
+      <div id="demo-empty"></div>
+      <div id="demo-nomatch"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.getElementById("theme").addEventListener("click", () => {
+    const el = document.documentElement;
+    const dark = el.classList.contains("dark") ||
+      (!el.classList.contains("light") && matchMedia("(prefers-color-scheme: dark)").matches);
+    el.classList.toggle("dark", !dark);
+    el.classList.toggle("light", dark);
+  });
+</script>
+
+<!--
+  INLINED, not imported.
+
+  The modules under core/ and vanilla/ are what you use in a real project. The
+  copy below is generated from those exact files by `npm run build:demo`, so the
+  two can never drift; CI fails the build if they do. It is inlined because
+  file:// refuses ES module imports on CORS grounds, and a demo that only works
+  behind a web server is a demo that gets reported as a bug.
+-->
+<script>
+/* DG:INLINE:START — generated from core/ + vanilla/. Do not edit by hand. */
+/**
+ * A typed filter model that survives a round trip through a URL.
+ *
+ * Two things make this harder than it looks, and both are handled here rather
+ * than in every grid that uses it:
+ *
+ *   1. The encoded value is UNTRUSTED. It arrives from a URL a person can edit,
+ *      from a bookmark saved before a field was renamed, from a link pasted
+ *      through software that mangles characters. It must never crash the grid.
+ *   2. It must survive non-ASCII text. `btoa` throws on anything above U+00FF,
+ *      so a filter for "Zürich" or "日本" breaks the moment someone shares it.
+ *      TextEncoder/TextDecoder is used instead.
+ */
+
+/** @typedef {"text"|"enum"|"boolean"|"date"|"number"} FieldType */
+/** @typedef {{ field: string, operator: string, values: string[] }} FilterCondition */
+/** @typedef {{ conjunction: "and"|"or", conditions: FilterCondition[] }} FilterGroup */
+
+/** Which operators make sense for which field type. Anything else is dropped. */
+const OPERATORS_BY_TYPE = {
+  text: ["contains", "not_contains", "is", "is_not", "is_set", "is_not_set"],
+  enum: ["in", "not_in", "is_set", "is_not_set"],
+  boolean: ["is"],
+  date: ["before", "after", "is", "is_set", "is_not_set"],
+  number: ["is", "is_not", "gt", "gte", "lt", "lte"],
+};
+
+/** Operators that are complete on their own — a value would be meaningless. */
+const VALUELESS_OPERATORS = new Set(["is_set", "is_not_set"]);
+
+const EMPTY_FILTER = { conjunction: "and", conditions: [] };
+
+const isEmptyFilter = (filter) =>
+  !filter || !filter.conditions || filter.conditions.length === 0;
+
+/** Schema version, so an old encoded filter can be recognised and dropped. */
+const VERSION = 1;
+
+/** Refuse absurd input rather than trying to parse it — §30 size ceiling. */
+const MAX_ENCODED_LENGTH = 2048;
+
+const toBase64Url = (bytes) => {
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+
+const fromBase64Url = (text) => {
+  const padded = text
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(Math.ceil(text.length / 4) * 4, "=");
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
+};
+
+/**
+ * Encode as `1.<base64url>`, a positional tuple array rather than objects:
+ * `[["status","in",["active"]]]`. Shorter URLs are easier to read, share and
+ * paste, and the version prefix is outside the payload so it can be checked
+ * without decoding anything.
+ */
+function encodeFilter(filter) {
+  if (isEmptyFilter(filter)) return null;
+  const tuples = filter.conditions.map((c) => [c.field, c.operator, c.values ?? []]);
+  const payload = JSON.stringify([filter.conjunction === "or" ? "or" : "and", tuples]);
+  return `${VERSION}.${toBase64Url(new TextEncoder().encode(payload))}`;
+}
+
+/**
+ * Decode, validating every condition against the fields this grid actually has.
+ *
+ * Returns the surviving conditions AND the names that were dropped, so the grid
+ * can tell the user "2 filters no longer apply" instead of silently showing a
+ * different result set than the link promised. Silence here is the bug: the
+ * person shared a filtered view and the recipient sees an unfiltered one with
+ * no indication anything was lost.
+ *
+ * @param {string|null} raw
+ * @param {Map<string, FieldType>=} fields  known field id -> type
+ * @returns {{ filter: FilterGroup, dropped: string[] }}
+ */
+function decodeFilter(raw, fields) {
+  const empty = { filter: EMPTY_FILTER, dropped: [] };
+  if (!raw || raw.length > MAX_ENCODED_LENGTH) return empty;
+
+  const dot = raw.indexOf(".");
+  if (dot < 1) return empty;
+  if (Number(raw.slice(0, dot)) !== VERSION) return empty; // a future or ancient format
+
+  let parsed;
+  try {
+    parsed = JSON.parse(new TextDecoder().decode(fromBase64Url(raw.slice(dot + 1))));
+  } catch {
+    return empty; // malformed base64, malformed JSON, truncated link
+  }
+  if (!Array.isArray(parsed) || parsed.length !== 2 || !Array.isArray(parsed[1])) return empty;
+
+  const dropped = [];
+  const conditions = [];
+  for (const tuple of parsed[1]) {
+    if (!Array.isArray(tuple) || tuple.length < 2) continue;
+    const [field, operator, values] = tuple;
+    if (typeof field !== "string" || typeof operator !== "string") continue;
+
+    if (fields) {
+      const type = fields.get(field);
+      if (!type) {
+        dropped.push(field);
+        continue;
+      } // field no longer exists
+      if (!OPERATORS_BY_TYPE[type]?.includes(operator)) {
+        dropped.push(field);
+        continue;
+      }
+    }
+    const list = Array.isArray(values) ? values.filter((v) => typeof v === "string") : [];
+    if (!list.length && !VALUELESS_OPERATORS.has(operator)) {
+      dropped.push(field);
+      continue;
+    }
+    conditions.push({ field, operator, values: list });
+  }
+
+  return {
+    filter: { conjunction: parsed[0] === "or" ? "or" : "and", conditions },
+    dropped,
+  };
+}
+
+/** Human-readable chip text. The grid shows one chip per active condition. */
+function describeCondition(condition, field) {
+  const label = field?.label ?? condition.field;
+  const verb =
+    {
+      contains: "contains",
+      not_contains: "does not contain",
+      is: "is",
+      is_not: "is not",
+      in: "is any of",
+      not_in: "is none of",
+      is_set: "is set",
+      is_not_set: "is not set",
+      before: "before",
+      after: "after",
+      gt: ">",
+      gte: "≥",
+      lt: "<",
+      lte: "≤",
+    }[condition.operator] ?? condition.operator;
+
+  if (VALUELESS_OPERATORS.has(condition.operator)) return `${label} ${verb}`;
+  const shown = condition.values.map((v) => field?.options?.find((o) => o.value === v)?.label ?? v);
+  const text =
+    shown.length > 2 ? `${shown.slice(0, 2).join(", ")} +${shown.length - 2}` : shown.join(", ");
+  return `${label} ${verb} ${text}`;
+}
+
+/**
+ * The grid query: what the user is asking for, independent of any framework,
+ * any router, and any UI library.
+ *
+ * Zero dependencies and no build step — this file runs as-is in a browser, in
+ * Node, and on a server. That matters because the SAME parsing and validation
+ * has to happen in both places: the client reads the URL to render, the server
+ * reads it to build a database query, and if those two disagree about what
+ * `page=0` or an unknown sort field means, you get bugs that only appear on a
+ * shared link.
+ */
+
+/** @typedef {"asc" | "desc"} SortDirection */
+/** @typedef {{ field: string, direction: SortDirection }} SortSpec */
+/** @typedef {"table" | "cards"} DisplayMode */
+
+/**
+ * @typedef {object} GridQuery
+ * @property {string}      q         free-text search
+ * @property {string=}     segment   a named built-in subset
+ * @property {FilterGroup} filter    the typed filter model
+ * @property {SortSpec[]}  sort      ordered; first entry is primary
+ * @property {number}      page      ONE-based, because it is user-visible
+ * @property {number}      pageSize
+ * @property {DisplayMode} display
+ */
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 200];
+
+const MAX_PAGE_SIZE = 200;
+
+/** Sorting by more than a few columns is unreadable and slow to index. */
+const MAX_SORT_FIELDS = 3;
+
+/** @type {GridQuery} */
+const DEFAULT_QUERY = {
+  q: "",
+  segment: undefined,
+  filter: EMPTY_FILTER,
+  sort: [],
+  page: 1,
+  pageSize: 25,
+  display: "table",
+};
+
+/**
+ * Clamp anything into a usable query. Never throws.
+ *
+ * A URL is untrusted input — it can be hand-edited, truncated by a chat client,
+ * or five versions out of date in someone's bookmarks. The rule everywhere in
+ * this file is that malformed input DEGRADES to a sensible default rather than
+ * producing an error page, because an old link showing the default view is a
+ * minor annoyance and an old link showing a crash is a support ticket.
+ */
+function normalizeQuery(input = {}) {
+  const size = Number(input.pageSize);
+  const page = Number(input.page);
+  return {
+    q: typeof input.q === "string" ? input.q : "",
+    segment: typeof input.segment === "string" && input.segment ? input.segment : undefined,
+    filter: input.filter && Array.isArray(input.filter.conditions) ? input.filter : EMPTY_FILTER,
+    sort: Array.isArray(input.sort) ? input.sort.slice(0, MAX_SORT_FIELDS) : [],
+    page: Number.isFinite(page) && page >= 1 ? Math.floor(page) : 1,
+    pageSize: PAGE_SIZE_OPTIONS.includes(size) ? size : DEFAULT_QUERY.pageSize,
+    display: input.display === "cards" ? "cards" : "table",
+  };
+}
+
+/**
+ * Which query concerns changed. The caller says WHAT happened, not what should
+ * follow from it — the reset rules and the history mode are decided in one
+ * place from this, so no feature has to remember to clear the page itself.
+ *
+ * @typedef {"search"|"filter"|"segment"|"sort"|"page"|"pageSize"|"display"|"reset"} GridChange
+ */
+
+/**
+ * Changing the result SET must return to page 1 — otherwise a search that
+ * matches three rows while you are on page 7 shows an empty grid, and the
+ * emptiness looks like "no matches" rather than "wrong page".
+ * @param {GridChange} change
+ */
+const changeResetsPage = (change) =>
+  change === "search" ||
+  change === "filter" ||
+  change === "segment" ||
+  change === "sort" ||
+  change === "pageSize" ||
+  change === "reset";
+
+/**
+ * An "everything matching this query" selection is a PREDICATE, not a list of
+ * ids. The moment the predicate changes, the selection means something the user
+ * did not agree to, so it must be dropped rather than reinterpreted.
+ * @param {GridChange} change
+ */
+const changeDropsSelection = (change) =>
+  change === "search" || change === "filter" || change === "segment" || change === "reset";
+
+/**
+ * PUSH for navigation the user expects Back to undo; REPLACE for refinement.
+ *
+ * Every keystroke of a search box pushing history is the classic mistake: Back
+ * then has to be pressed once per character to escape the grid.
+ * @param {GridChange} change
+ * @returns {"push"|"replace"}
+ */
+const historyModeFor = (change) =>
+  change === "page" || change === "segment" ? "push" : "replace";
+
+/** Deep-ish equality, enough to decide whether a URL write is needed at all. */
+function sameQuery(a, b) {
+  return (
+    a.q === b.q &&
+    a.segment === b.segment &&
+    a.page === b.page &&
+    a.pageSize === b.pageSize &&
+    a.display === b.display &&
+    JSON.stringify(a.sort) === JSON.stringify(b.sort) &&
+    JSON.stringify(a.filter) === JSON.stringify(b.filter)
+  );
+}
+
+/**
+ * The URL is the state. This file is the whole contract, and it is the reason
+ * this component exists — there are many good React tables and almost none of
+ * them can be linked to.
+ *
+ * Router-agnostic on purpose: it takes and returns `URLSearchParams` and knows
+ * nothing about Next.js, React Router, or the History API. The same functions
+ * run on a server reading an incoming request. Bind it to your router in about
+ * ten lines; see react/use-grid-url-state.mjs for one binding.
+ *
+ * THE PARAMETER SHAPE
+ *
+ *   <namespace>_<suffix>        ten_q, ten_page, ten_sort
+ *
+ * The namespace prefix means two grids can share one route without fighting
+ * over `page`. The suffixes are fixed, so someone who learns one grid's URL can
+ * read every other grid's URL in the same product.
+ */
+
+const URL_SUFFIX = {
+  query: "q",
+  segment: "seg",
+  filter: "fx",
+  sort: "sort",
+  page: "page",
+  pageSize: "size",
+  display: "view",
+  /** The open row or drawer, by STABLE id — never a row index. */
+  selected: "sel",
+};
+
+/** @returns {string} e.g. `param("ten", "page")` -> `"ten_page"` */
+const param = (namespace, suffix) => `${namespace}_${URL_SUFFIX[suffix]}`;
+
+/** `field:dir,field2:dir` — compact, and still readable in a pasted link. */
+const encodeSort = (sort) => sort.map((s) => `${s.field}:${s.direction}`).join(",");
+
+function decodeSort(raw, allowed) {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .slice(0, MAX_SORT_FIELDS)
+    .map((chunk) => {
+      const [field, dir] = chunk.split(":");
+      if (!field) return null;
+      // A sort field this grid no longer has is DROPPED, not an error: the
+      // column was probably renamed since the link was saved.
+      if (allowed && !allowed.has(field)) return null;
+      return { field, direction: dir === "desc" ? "desc" : "asc" };
+    })
+    .filter(Boolean);
+}
+
+/**
+ * Serialise a query into search params, OMITTING every value that equals its
+ * default.
+ *
+ * This is not tidiness. A parameter written into a URL becomes part of your
+ * product's public navigation API — it will be in bookmarks, in tickets, in
+ * emails — and every one you write down is one you have to keep supporting.
+ * Writing `page=1&size=25&view=table&dir=asc` on a fresh grid commits you to
+ * four parameters that carry no information.
+ *
+ * `base` preserves unrelated parameters, so a grid never clobbers another
+ * grid's state or the rest of the page's query string.
+ */
+function writeGridParams(namespace, query, base) {
+  const p = new URLSearchParams(base ?? undefined);
+  const set = (suffix, value) => {
+    const key = param(namespace, suffix);
+    if (value === null || value === undefined || value === "") p.delete(key);
+    else p.set(key, String(value));
+  };
+
+  set("query", query.q?.trim() || null);
+  set("segment", query.segment ?? null);
+  set("filter", isEmptyFilter(query.filter) ? null : encodeFilter(query.filter));
+  set("sort", query.sort?.length ? encodeSort(query.sort) : null);
+  set("page", query.page > 1 ? query.page : null);
+  set("pageSize", query.pageSize !== DEFAULT_QUERY.pageSize ? query.pageSize : null);
+  set("display", query.display !== DEFAULT_QUERY.display ? query.display : null);
+  return p;
+}
+
+/**
+ * Read a query out of search params, validating every one.
+ *
+ * @param {string} namespace
+ * @param {URLSearchParams} search
+ * @param {{sortableFields?: Set<string>, filterFields?: Map<string,string>, segmentIds?: string[]}} [opts]
+ * @returns {{query: import("./query.mjs").GridQuery, droppedFilterFields: string[]}}
+ */
+function readGridParams(namespace, search, opts = {}) {
+  const get = (suffix) => search.get(param(namespace, suffix));
+
+  const { filter, dropped } = decodeFilter(get("filter"), opts.filterFields);
+
+  const rawSegment = get("segment");
+  // A segment this grid does not declare is dropped, so a stale link shows the
+  // default view rather than an empty one that looks like "no records".
+  const segment =
+    rawSegment && (!opts.segmentIds || opts.segmentIds.includes(rawSegment))
+      ? rawSegment
+      : undefined;
+
+  const size = Number(get("pageSize"));
+  const page = Number(get("page"));
+
+  return {
+    query: normalizeQuery({
+      q: get("query") ?? "",
+      segment,
+      filter,
+      sort: decodeSort(get("sort"), opts.sortableFields),
+      page: Number.isFinite(page) && page >= 1 ? page : 1,
+      pageSize: PAGE_SIZE_OPTIONS.includes(size) ? size : DEFAULT_QUERY.pageSize,
+      display: get("display") === "cards" ? "cards" : "table",
+    }),
+    droppedFilterFields: dropped,
+  };
+}
+
+/**
+ * Apply a change and let the consequences follow automatically.
+ *
+ * Reset rules live HERE, in one place, rather than as `delete("page")` calls
+ * scattered through every feature. Scattered resets are how you end up with a
+ * grid where changing the filter resets the page but changing the segment does
+ * not, and nobody can say whether that was deliberate.
+ *
+ * @returns {{query, history: "push"|"replace", dropSelection: boolean}}
+ */
+function applyChange(next, change) {
+  const query = normalizeQuery(next);
+  return {
+    query: changeResetsPage(change) ? { ...query, page: 1 } : query,
+    history: change === "page" || change === "segment" ? "push" : "replace",
+    dropSelection: changeDropsSelection(change),
+  };
+}
+
+/**
+ * Clear only THIS grid's parameters. Anything else on the query string — a
+ * second grid, a drawer, a campaign tag — is left alone. Resetting a grid by
+ * clearing the whole query string is a bug that only shows up on the one page
+ * that has two grids.
+ */
+function clearNamespace(namespace, base) {
+  const p = new URLSearchParams(base ?? undefined);
+  for (const suffix of Object.keys(URL_SUFFIX)) p.delete(param(namespace, suffix));
+  return p;
+}
+
+/** Build a shareable link to an exact view, for a "Copy link" button. */
+function buildGridUrl(pathname, namespace, query, base) {
+  const qs = writeGridParams(namespace, query, base).toString();
+  return qs ? `${pathname}?${qs}` : pathname;
+}
+
+/**
+ * DATA GRID — no framework, no dependencies.
+ *
+ * Popovers use the native `popover` attribute and dialogs use `<dialog>`, so
+ * this imports nothing from your app and cannot collide with your button, your
+ * dialog, or your version of anything. Drop the stylesheet and this file into a
+ * page and it works.
+ *
+ *   import { createDataGrid } from "./vanilla/data-grid.js";
+ *
+ *   const grid = createDataGrid(document.querySelector("#people"), {
+ *     namespace: "ppl",
+ *     columns: [
+ *       { id: "name",   label: "Name",   sortable: true },
+ *       { id: "status", label: "Status", render: (row) => badge(row.status) },
+ *       { id: "seats",  label: "Seats",  align: "right", sortable: true },
+ *     ],
+ *     filters: [{ id: "status", label: "Status", type: "enum", options: [...] }],
+ *     segments: [{ id: "active", label: "Active" }],
+ *     getRowId: (row) => row.id,
+ *     async load(query, signal) {
+ *       const res = await fetch(`/api/people?${query.searchParams}`, { signal });
+ *       if (!res.ok) throw await gridError(res);
+ *       return res.json();                     // { rows, total }
+ *     },
+ *   });
+ */
+
+const h = (tag, props = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "html") el.innerHTML = v;
+    else if (k === "text") el.textContent = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else el.setAttribute(k, v === true ? "" : String(v));
+  }
+  for (const kid of kids.flat()) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+};
+
+const ICON = {
+  search:
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  x: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  sort: '<svg class="dg-sort-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>',
+  filter:
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>',
+  alert:
+    '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>',
+  empty:
+    '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16v12H4z"/><path d="M4 11h16"/></svg>',
+};
+
+let popoverSeq = 0;
+
+function createDataGrid(host, config) {
+  const {
+    namespace,
+    columns,
+    filters = [],
+    segments = [],
+    getRowId = (row) => row.id,
+    selectable = false,
+    load,
+    emptyMessage = "Nothing here yet.",
+    searchPlaceholder = "Search…",
+  } = config;
+
+  const sortable = new Set(columns.filter((c) => c.sortable).map((c) => c.id));
+  const filterFields = new Map(filters.map((f) => [f.id, f.type ?? "enum"]));
+  const segmentIds = segments.map((s) => s.id);
+
+  /** @type {{status:string, rows:any[], total:number|null, error:any}} */
+  let state = { status: "loading", rows: [], total: null, error: null };
+  let selection = new Set();
+  let inflight = null;
+  let searchTimer = 0;
+
+  const readUrl = () =>
+    readGridParams(namespace, new URLSearchParams(location.search), {
+      sortableFields: sortable,
+      filterFields,
+      segmentIds,
+    });
+
+  let { query, droppedFilterFields } = readUrl();
+
+  host.classList.add("dg");
+  const el = {
+    toolbar: h("div", { class: "dg-toolbar" }),
+    segments: h("div", { class: "dg-segments", role: "tablist" }),
+    chips: h("div", { class: "dg-chips" }),
+    selection: h("div", { class: "dg-selection", hidden: true, role: "status" }),
+    frame: h("div", { class: "dg-frame" }),
+    pagination: h("div", { class: "dg-pagination" }),
+    live: h("div", {
+      class: "dg-sr-only",
+      role: "status",
+      "aria-live": "polite",
+      style: "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)",
+    }),
+  };
+  host.append(el.segments, el.toolbar, el.chips, el.selection, el.frame, el.pagination, el.live);
+
+  // --- url ----------------------------------------------------------------
+
+  function commit(next, change) {
+    const result = applyChange(next, change);
+    query = result.query;
+    if (result.dropSelection) selection.clear();
+
+    const url = (() => {
+      const qs = writeGridParams(namespace, query, new URLSearchParams(location.search)).toString();
+      return qs
+        ? `${location.pathname}?${qs}${location.hash}`
+        : `${location.pathname}${location.hash}`;
+    })();
+    // Native history writes rather than a router call: rapid refinement should
+    // not re-render the whole page, and it must not stack one history entry per
+    // keystroke or Back becomes unusable.
+    if (result.history === "push") history.pushState(null, "", url);
+    else history.replaceState(null, "", url);
+
+    render();
+    fetchRows();
+  }
+
+  addEventListener("popstate", () => {
+    ({ query, droppedFilterFields } = readUrl());
+    selection.clear();
+    render();
+    fetchRows();
+  });
+
+  // --- data ---------------------------------------------------------------
+
+  async function fetchRows() {
+    inflight?.abort();
+    const controller = new AbortController();
+    inflight = controller;
+
+    // Keep rows on screen while refreshing. Replacing them with a spinner
+    // throws away whatever the person was reading.
+    state.status = state.rows.length ? "refreshing" : "loading";
+    render();
+
+    try {
+      const params = writeGridParams(namespace, query);
+      const result = await load({ ...query, searchParams: params.toString() }, controller.signal);
+      if (controller.signal.aborted) return;
+      state = {
+        status: "ready",
+        rows: result.rows ?? [],
+        total: result.total ?? null,
+        error: null,
+      };
+      announce(`${state.total ?? state.rows.length} results`);
+    } catch (error) {
+      if (controller.signal.aborted || error?.name === "AbortError") return;
+      state = { ...state, status: "error", error };
+    }
+    render();
+  }
+
+  const announce = (text) => {
+    el.live.textContent = text;
+  };
+
+  // --- toolbar ------------------------------------------------------------
+
+  function renderToolbar() {
+    el.toolbar.replaceChildren();
+
+    const input = h("input", {
+      type: "search",
+      value: query.q,
+      placeholder: searchPlaceholder,
+      "aria-label": searchPlaceholder,
+      onInput: (e) => {
+        clearTimeout(searchTimer);
+        const value = e.target.value;
+        // Debounced, because one request per keystroke is how you rate-limit
+        // yourself. 250ms is long enough to batch typing, short enough to feel
+        // immediate.
+        searchTimer = setTimeout(() => commit({ ...query, q: value }, "search"), 250);
+      },
+      onKeydown: (e) => {
+        if (e.key === "Escape" && e.target.value) {
+          e.target.value = "";
+          commit({ ...query, q: "" }, "search");
+        }
+      },
+    });
+    const search = h(
+      "div",
+      { class: "dg-search" },
+      h("span", { class: "dg-search-icon", html: ICON.search }),
+      input,
+      query.q
+        ? h("button", {
+            class: "dg-search-clear",
+            type: "button",
+            "aria-label": "Clear search",
+            html: ICON.x,
+            onClick: () => commit({ ...query, q: "" }, "search"),
+          })
+        : null,
+    );
+    el.toolbar.append(search);
+
+    for (const field of filters) el.toolbar.append(filterMenu(field));
+
+    el.toolbar.append(h("div", { class: "dg-toolbar-spacer" }));
+
+    const active = query.filter.conditions.length || query.q || query.segment;
+    if (active) {
+      el.toolbar.append(
+        h("button", {
+          class: "dg-btn",
+          type: "button",
+          text: "Reset",
+          onClick: () => {
+            const cleared = clearNamespace(namespace, new URLSearchParams(location.search));
+            history.replaceState(
+              null,
+              "",
+              cleared.toString() ? `${location.pathname}?${cleared}` : location.pathname,
+            );
+            ({ query, droppedFilterFields } = readUrl());
+            selection.clear();
+            render();
+            fetchRows();
+          },
+        }),
+      );
+    }
+  }
+
+  /** A filter menu built on the native popover API — no library, no portal. */
+  function filterMenu(field) {
+    const id = `dg-pop-${++popoverSeq}`;
+    const current = query.filter.conditions.find((c) => c.field === field.id);
+    const chosen = new Set(current?.values ?? []);
+
+    const pop = h(
+      "div",
+      { class: "dg-pop", id, popover: "auto" },
+      h("div", { class: "dg-pop-title", text: field.label }),
+      ...(field.options ?? []).map((opt) =>
+        h(
+          "label",
+          { class: "dg-opt" },
+          h("input", {
+            type: "checkbox",
+            checked: chosen.has(opt.value),
+            onChange: (e) => {
+              e.target.checked ? chosen.add(opt.value) : chosen.delete(opt.value);
+            },
+          }),
+          opt.label ?? opt.value,
+        ),
+      ),
+      h(
+        "div",
+        { class: "dg-pop-actions" },
+        h("button", {
+          class: "dg-btn dg-btn-primary",
+          type: "button",
+          text: "Apply",
+          onClick: () => {
+            pop.hidePopover();
+            const others = query.filter.conditions.filter((c) => c.field !== field.id);
+            const next = chosen.size
+              ? [...others, { field: field.id, operator: "in", values: [...chosen] }]
+              : others;
+            commit({ ...query, filter: { conjunction: "and", conditions: next } }, "filter");
+          },
+        }),
+        h("button", {
+          class: "dg-btn",
+          type: "button",
+          text: "Clear",
+          onClick: () => {
+            pop.hidePopover();
+            commit(
+              {
+                ...query,
+                filter: {
+                  conjunction: "and",
+                  conditions: query.filter.conditions.filter((c) => c.field !== field.id),
+                },
+              },
+              "filter",
+            );
+          },
+        }),
+      ),
+    );
+
+    const trigger = h(
+      "button",
+      { class: "dg-btn", type: "button", popovertarget: id, "aria-expanded": "false" },
+      h("span", { html: ICON.filter }),
+      field.label,
+      chosen.size ? h("span", { class: "dg-segment-count", text: String(chosen.size) }) : null,
+    );
+
+    // The native popover has no anchoring in Safari/Firefox yet, so position it
+    // ourselves. Cheap, and avoids a positioning dependency.
+    pop.addEventListener("beforetoggle", (e) => {
+      trigger.setAttribute("aria-expanded", String(e.newState === "open"));
+      if (e.newState !== "open") return;
+      const r = trigger.getBoundingClientRect();
+      pop.style.left = `${Math.min(r.left, innerWidth - 240)}px`;
+      pop.style.top = `${r.bottom + 6}px`;
+    });
+
+    return h("span", {}, trigger, pop);
+  }
+
+  function renderSegments() {
+    el.segments.replaceChildren();
+    if (!segments.length) {
+      el.segments.hidden = true;
+      return;
+    }
+    el.segments.hidden = false;
+    for (const seg of segments) {
+      const on = (query.segment ?? segments[0]?.id) === seg.id;
+      el.segments.append(
+        h(
+          "button",
+          {
+            class: "dg-segment",
+            role: "tab",
+            type: "button",
+            "aria-selected": String(on),
+            onClick: () =>
+              commit(
+                { ...query, segment: seg.id === segments[0]?.id ? undefined : seg.id },
+                "segment",
+              ),
+          },
+          seg.label,
+          seg.count !== undefined
+            ? h("span", { class: "dg-segment-count", text: String(seg.count) })
+            : null,
+        ),
+      );
+    }
+  }
+
+  function renderChips() {
+    el.chips.replaceChildren();
+    const chips = query.filter.conditions.map((condition) =>
+      h(
+        "span",
+        { class: "dg-chip" },
+        describeCondition(
+          condition,
+          filters.find((f) => f.id === condition.field),
+        ),
+        h("button", {
+          type: "button",
+          "aria-label": `Remove filter ${condition.field}`,
+          html: ICON.x,
+          onClick: () =>
+            commit(
+              {
+                ...query,
+                filter: {
+                  conjunction: "and",
+                  conditions: query.filter.conditions.filter((c) => c !== condition),
+                },
+              },
+              "filter",
+            ),
+        }),
+      ),
+    );
+
+    // A link whose filters no longer exist must SAY so. Silently showing an
+    // unfiltered grid means the recipient sees different data than the sender
+    // and neither of them knows.
+    if (droppedFilterFields.length) {
+      chips.push(
+        h("span", {
+          class: "dg-chip dg-chip-warn",
+          role: "status",
+          text: `${droppedFilterFields.length} filter${droppedFilterFields.length > 1 ? "s" : ""} from this link no longer exist`,
+        }),
+      );
+    }
+    el.chips.hidden = !chips.length;
+    el.chips.append(...chips);
+  }
+
+  // --- body ---------------------------------------------------------------
+
+  function stateBlock(kind, { title, body, actions = [], meta }) {
+    return h(
+      "div",
+      { class: `dg-state dg-state-${kind}` },
+      h("div", { class: "dg-state-icon", html: kind === "error" ? ICON.alert : ICON.empty }),
+      h("div", { class: "dg-state-title", text: title }),
+      body ? h("div", { class: "dg-state-body", text: body }) : null,
+      actions.length ? h("div", { class: "dg-state-actions" }, ...actions) : null,
+      meta ? h("div", { class: "dg-state-meta", text: meta }) : null,
+    );
+  }
+
+  const retryButton = () =>
+    h("button", { class: "dg-btn", type: "button", text: "Try again", onClick: fetchRows });
+
+  function renderBody() {
+    el.frame.replaceChildren();
+    el.frame.classList.toggle("dg-refreshing", state.status === "refreshing");
+
+    if (state.status === "loading") {
+      el.frame.append(skeleton());
+      return;
+    }
+
+    if (state.status === "error") {
+      const err = state.error ?? {};
+      const offline = !navigator.onLine || err.code === "NETWORK_OFFLINE";
+      el.frame.append(
+        stateBlock("error", {
+          title: offline ? "You are offline" : "This list could not be loaded",
+          // The distinction that matters: a failed request is not a count of zero.
+          body: offline
+            ? "The rows below could not be refreshed. Your filters are still saved."
+            : "This is not a count of zero — the result is unknown. Your filters and sorting are still saved.",
+          actions: [retryButton(), err.requestId || err.code ? copyButton(err) : null].filter(
+            Boolean,
+          ),
+          meta: [err.code, err.requestId].filter(Boolean).join(" · ") || undefined,
+        }),
+      );
+      return;
+    }
+
+    if (!state.rows.length) {
+      const filtered = query.q || query.filter.conditions.length || query.segment;
+      el.frame.append(
+        filtered
+          ? // "No records exist" and "nothing matched your filter" are different
+            // facts and need different words and different actions.
+            stateBlock("nomatch", {
+              title: "No results match",
+              body: "No rows match the current search and filters.",
+              actions: [
+                h("button", {
+                  class: "dg-btn",
+                  type: "button",
+                  text: "Clear search and filters",
+                  onClick: () =>
+                    commit(
+                      {
+                        ...query,
+                        q: "",
+                        filter: { conjunction: "and", conditions: [] },
+                        segment: undefined,
+                      },
+                      "reset",
+                    ),
+                }),
+              ],
+            })
+          : stateBlock("empty", { title: "Nothing here yet", body: emptyMessage }),
+      );
+      return;
+    }
+
+    el.frame.append(
+      h("div", { class: "dg-scroll" }, query.display === "cards" ? cards() : table()),
+    );
+  }
+
+  function copyButton(err) {
+    return h("button", {
+      class: "dg-btn",
+      type: "button",
+      text: "Copy error details",
+      onClick: async (e) => {
+        // Deliberately narrow: a code, an id, where and when. No tokens, no row
+        // data, no stack — a diagnostic a user can paste into a ticket safely.
+        const lines = [
+          `Error: ${err.code ?? "UNKNOWN"}`,
+          `Request ID: ${err.requestId ?? "not available"}`,
+          `Page: ${location.pathname}`,
+          `Grid: ${namespace}`,
+          `Time: ${new Date().toISOString()}`,
+          `Online: ${navigator.onLine ? "yes" : "no"}`,
+        ];
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          e.target.textContent = "Copied";
+        } catch {
+          e.target.textContent = "Press Ctrl+C";
+        }
+        setTimeout(() => {
+          e.target.textContent = "Copy error details";
+        }, 1800);
+      },
+    });
+  }
+
+  function skeleton() {
+    const body = h("tbody");
+    for (let r = 0; r < 6; r++) {
+      body.append(
+        h(
+          "tr",
+          { class: "dg-skeleton-row" },
+          ...columns.map(() =>
+            h(
+              "td",
+              {},
+              h("span", {
+                class: "dg-skeleton-cell",
+                style: `width:${40 + Math.round(((r * 37) % 5) * 12)}%`,
+              }),
+            ),
+          ),
+        ),
+      );
+    }
+    return h(
+      "div",
+      { class: "dg-scroll", "aria-busy": "true" },
+      h("table", { class: "dg-table" }, headRow(), body),
+    );
+  }
+
+  function headRow() {
+    return h(
+      "thead",
+      {},
+      h(
+        "tr",
+        {},
+        selectable
+          ? h(
+              "th",
+              { class: "dg-checkbox" },
+              h("input", {
+                type: "checkbox",
+                "aria-label": "Select all rows on this page",
+                checked:
+                  state.rows.length > 0 && state.rows.every((r) => selection.has(getRowId(r))),
+                onChange: (e) => {
+                  for (const row of state.rows)
+                    e.target.checked
+                      ? selection.add(getRowId(row))
+                      : selection.delete(getRowId(row));
+                  render();
+                },
+              }),
+            )
+          : null,
+        ...columns.map((col) => {
+          const active = query.sort.find((s) => s.field === col.id);
+          return h(
+            "th",
+            {
+              class: col.align === "right" ? "dg-num" : null,
+              scope: "col",
+              "aria-sort": active
+                ? active.direction === "asc"
+                  ? "ascending"
+                  : "descending"
+                : col.sortable
+                  ? "none"
+                  : null,
+            },
+            col.sortable
+              ? h(
+                  "button",
+                  {
+                    class: "dg-sort",
+                    type: "button",
+                    onClick: () =>
+                      commit(
+                        {
+                          ...query,
+                          sort: [
+                            {
+                              field: col.id,
+                              direction: active?.direction === "asc" ? "desc" : "asc",
+                            },
+                          ],
+                        },
+                        "sort",
+                      ),
+                  },
+                  col.label,
+                  h("span", { html: ICON.sort }),
+                )
+              : col.label,
+          );
+        }),
+      ),
+    );
+  }
+
+  function table() {
+    const body = h(
+      "tbody",
+      {},
+      ...state.rows.map((row) => {
+        const id = getRowId(row);
+        return h(
+          "tr",
+          { "aria-selected": selectable ? String(selection.has(id)) : null },
+          selectable
+            ? h(
+                "td",
+                { class: "dg-checkbox" },
+                h("input", {
+                  type: "checkbox",
+                  checked: selection.has(id),
+                  "aria-label": `Select ${String(row[columns[0].id] ?? id)}`,
+                  onChange: () => {
+                    selection.has(id) ? selection.delete(id) : selection.add(id);
+                    render();
+                  },
+                }),
+              )
+            : null,
+          ...columns.map((col) => {
+            const cell = h("td", { class: col.align === "right" ? "dg-num" : null });
+            const value = col.render ? col.render(row) : row[col.id];
+            if (value?.nodeType) cell.append(value);
+            else
+              cell.textContent =
+                value === null || value === undefined || value === "" ? "—" : String(value);
+            return cell;
+          }),
+        );
+      }),
+    );
+    return h("table", { class: "dg-table" }, headRow(), body);
+  }
+
+  function cards() {
+    return h(
+      "div",
+      { class: "dg-cards" },
+      ...state.rows.map((row) =>
+        h(
+          "dl",
+          { class: "dg-card" },
+          ...columns.flatMap((col) => [
+            h("dt", { text: col.label }),
+            h("dd", { text: String(col.render ? "" : (row[col.id] ?? "—")) }),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  function renderSelection() {
+    el.selection.replaceChildren();
+    el.selection.hidden = selection.size === 0;
+    if (!selection.size) return;
+    el.selection.append(
+      // Say the scope out loud. "Selected" that silently means "on this page"
+      // is how a bulk action surprises someone.
+      h("span", {}, h("strong", { text: String(selection.size) }), ` selected on this page`),
+      h("button", {
+        class: "dg-btn",
+        type: "button",
+        text: "Clear",
+        onClick: () => {
+          selection.clear();
+          render();
+        },
+      }),
+    );
+  }
+
+  function renderPagination() {
+    el.pagination.replaceChildren();
+    if (state.status === "error") return;
+    const total = state.total;
+    const from = (query.page - 1) * query.pageSize + 1;
+    const to =
+      total === null ? from + state.rows.length - 1 : Math.min(query.page * query.pageSize, total);
+    const pages = total === null ? null : Math.max(1, Math.ceil(total / query.pageSize));
+
+    el.pagination.append(
+      h(
+        "span",
+        { class: "dg-count" },
+        state.rows.length ? `${from}–${to}` : "0",
+        total === null ? " shown" : ` of ${total.toLocaleString()}`,
+      ),
+      h("div", { class: "dg-toolbar-spacer" }),
+      h(
+        "label",
+        {},
+        "Rows ",
+        h(
+          "select",
+          {
+            "aria-label": "Rows per page",
+            onChange: (e) => commit({ ...query, pageSize: Number(e.target.value) }, "pageSize"),
+          },
+          ...PAGE_SIZE_OPTIONS.map((n) =>
+            h("option", { value: n, selected: n === query.pageSize }, String(n)),
+          ),
+        ),
+      ),
+      h(
+        "div",
+        { class: "dg-page-buttons" },
+        h("button", {
+          class: "dg-btn",
+          type: "button",
+          text: "Previous",
+          disabled: query.page <= 1,
+          onClick: () => commit({ ...query, page: query.page - 1 }, "page"),
+        }),
+        h("button", {
+          class: "dg-btn",
+          type: "button",
+          text: "Next",
+          disabled: pages !== null ? query.page >= pages : state.rows.length < query.pageSize,
+          onClick: () => commit({ ...query, page: query.page + 1 }, "page"),
+        }),
+      ),
+      pages ? h("span", { text: `Page ${query.page} of ${pages}` }) : null,
+    );
+  }
+
+  function render() {
+    renderSegments();
+    renderToolbar();
+    renderChips();
+    renderSelection();
+    renderBody();
+    renderPagination();
+  }
+
+  render();
+  fetchRows();
+
+  return {
+    refresh: fetchRows,
+    get query() {
+      return query;
+    },
+    get selection() {
+      return [...selection];
+    },
+    destroy() {
+      inflight?.abort();
+      clearTimeout(searchTimer);
+      host.replaceChildren();
+    },
+  };
+}
+/* DG:INLINE:END */
+
+// --- a stand-in for a server: a bookshop's stock list ----------------------
+const GENRES = ["Fiction", "Mystery", "Science fiction", "History", "Cookery", "Poetry"];
+const FORMATS = ["Hardback", "Paperback", "eBook", "Audiobook"];
+const SHELVES = ["Front table", "A–F", "G–M", "N–S", "T–Z", "Stockroom"];
+
+/* Real titles and authors, so the demo reads like a real listing rather than
+   lorem. A few non-ASCII entries are deliberate: they prove the filter encoding
+   survives a round trip through a URL, which naive base64 does not. */
+const TITLES = [
+  ["Wuthering Heights", "Emily Brontë", "Fiction"],
+  ["Moby-Dick", "Herman Melville", "Fiction"],
+  ["Jane Eyre", "Charlotte Brontë", "Fiction"],
+  ["Frankenstein", "Mary Shelley", "Science fiction"],
+  ["Dracula", "Bram Stoker", "Fiction"],
+  ["Middlemarch", "George Eliot", "Fiction"],
+  ["The Woman in White", "Wilkie Collins", "Mystery"],
+  ["Persuasion", "Jane Austen", "Fiction"],
+  ["Bleak House", "Charles Dickens", "Fiction"],
+  ["The Time Machine", "H. G. Wells", "Science fiction"],
+  ["Anna Karenina", "Leo Tolstoy", "Fiction"],
+  ["Crime and Punishment", "Fyodor Dostoevsky", "Fiction"],
+  ["Les Misérables", "Victor Hugo", "Fiction"],
+  ["Madame Bovary", "Gustave Flaubert", "Fiction"],
+  ["Don Quixote", "Miguel de Cervantes", "Fiction"],
+  ["The Metamorphosis", "Franz Kafka", "Fiction"],
+  ["雪国 (Snow Country)", "Yasunari Kawabata", "Fiction"],
+  ["Kokoro", "Natsume Sōseki", "Fiction"],
+  ["The Odyssey", "Homer", "Poetry"],
+  ["Meditations", "Marcus Aurelius", "History"],
+  ["A Room of One's Own", "Virginia Woolf", "History"],
+  ["The Waste Land", "T. S. Eliot", "Poetry"],
+  ["Leaves of Grass", "Walt Whitman", "Poetry"],
+  ["Selected Poems", "Emily Dickinson", "Poetry"],
+  ["The Art of Cookery", "Hannah Glasse", "Cookery"],
+  ["Modern Cookery", "Eliza Acton", "Cookery"],
+  ["The Sign of the Four", "Arthur Conan Doyle", "Mystery"],
+  ["The Moonstone", "Wilkie Collins", "Mystery"],
+  ["The Thirty-Nine Steps", "John Buchan", "Mystery"],
+  ["The Mysterious Affair at Styles", "Agatha Christie", "Mystery"],
+  ["A Journal of the Plague Year", "Daniel Defoe", "History"],
+  ["The Prince", "Niccolò Machiavelli", "History"],
+  ["The Origin of Species", "Charles Darwin", "History"],
+  ["A Vindication of the Rights of Woman", "Mary Wollstonecraft", "History"],
+  ["Twenty Thousand Leagues Under the Seas", "Jules Verne", "Science fiction"],
+  ["The Island of Doctor Moreau", "H. G. Wells", "Science fiction"],
+];
+
+/* Deterministic pseudo-random, so the demo and every screenshot of it are
+   identical on every machine and in CI. Math.random() here would make the
+   screenshots churn on every run. */
+let seed = 1987;
+const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+
+const ROWS = Array.from({ length: 143 }, (_, i) => {
+  const [title, author, genre] = TITLES[i % TITLES.length];
+  const edition = i < TITLES.length ? "" : ` (${["Annotated", "Illustrated", "Pocket", "Anniversary"][i % 4]})`;
+  const stock = Math.floor(rand() * 42) - 2;
+  return {
+    id: `bk_${String(i + 1).padStart(4, "0")}`,
+    isbn: `978-0-${String(100000 + i * 137).slice(0, 6)}-${i % 10}`,
+    title: title + edition,
+    author,
+    genre,
+    format: FORMATS[(i * 3) % FORMATS.length],
+    shelf: SHELVES[(i * 7) % SHELVES.length],
+    price: Number((4.5 + rand() * 38).toFixed(2)),
+    stock: Math.max(0, stock),
+    availability: stock <= 0 ? "out of stock" : stock < 5 ? "low stock" : "in stock",
+  };
+});
+
+/** Applies the query the way a real server would, so the demo cannot lie. */
+function queryRows(query) {
+  let rows = ROWS;
+  if (query.segment && query.segment !== "all") rows = rows.filter((r) => r.availability === query.segment);
+  for (const c of query.filter.conditions) {
+    if (c.operator === "in") rows = rows.filter((r) => c.values.includes(String(r[c.field])));
+  }
+  if (query.q) {
+    const needle = query.q.trim().toLowerCase();
+    rows = rows.filter((r) =>
+      r.title.toLowerCase().includes(needle) ||
+      r.author.toLowerCase().includes(needle) ||
+      r.isbn.includes(needle));
+  }
+  const [sort] = query.sort;
+  if (sort) {
+    const dir = sort.direction === "desc" ? -1 : 1;
+    rows = [...rows].sort((a, b) =>
+      (typeof a[sort.field] === "number" ? a[sort.field] - b[sort.field]
+        : String(a[sort.field]).localeCompare(String(b[sort.field]))) * dir);
+  }
+  const total = rows.length;
+  const start = (query.page - 1) * query.pageSize;
+  return { rows: rows.slice(start, start + query.pageSize), total };
+}
+
+const SLUG = { "in stock": "active", "low stock": "pending", "out of stock": "suspended" };
+const badge = (value) => {
+  const el = document.createElement("span");
+  el.className = `badge b-${SLUG[value] ?? "archived"}`;
+  el.textContent = value;
+  return el;
+};
+const money = (n) => `£${n.toFixed(2)}`;
+
+const COLUMNS = [
+  { id: "title", label: "Title", sortable: true },
+  { id: "author", label: "Author", sortable: true },
+  { id: "genre", label: "Genre" },
+  { id: "format", label: "Format" },
+  { id: "availability", label: "Availability", render: (row) => badge(row.availability) },
+  { id: "price", label: "Price", align: "right", sortable: true, render: (row) => money(row.price) },
+  { id: "stock", label: "In stock", align: "right", sortable: true },
+];
+const FILTERS = [
+  { id: "genre", label: "Genre", type: "enum", options: GENRES.map((v) => ({ value: v, label: v })) },
+  { id: "format", label: "Format", type: "enum", options: FORMATS.map((v) => ({ value: v, label: v })) },
+  { id: "shelf", label: "Shelf", type: "enum", options: SHELVES.map((v) => ({ value: v, label: v })) },
+];
+const SEGMENTS = [
+  { id: "all", label: "All titles" },
+  { id: "in stock", label: "In stock" },
+  { id: "low stock", label: "Low stock" },
+  { id: "out of stock", label: "Out of stock" },
+];
+
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+createDataGrid(document.getElementById("demo-default"), {
+  namespace: "bk",
+  columns: COLUMNS,
+  filters: FILTERS,
+  segments: SEGMENTS,
+  selectable: true,
+  searchPlaceholder: "Search title, author or ISBN…",
+  async load(query) { await delay(180); return queryRows(query); },
+});
+
+createDataGrid(document.getElementById("demo-shadcn"), {
+  namespace: "sh",
+  columns: [COLUMNS[0], COLUMNS[1], COLUMNS[4], COLUMNS[5]],
+  filters: [FILTERS[0]],
+  async load(query) { await delay(120); return queryRows(query); },
+});
+
+// An error carrying a code and a request id, the way a real one would.
+createDataGrid(document.getElementById("demo-states"), {
+  namespace: "err",
+  columns: COLUMNS.slice(0, 3),
+  async load() {
+    await delay(150);
+    throw Object.assign(new Error("Upstream timed out"), {
+      code: "GRID_QUERY_FAILED",
+      requestId: "req_01J8ZK4M2QH7X3B9",
+    });
+  },
+});
+
+createDataGrid(document.getElementById("demo-empty"), {
+  namespace: "emp",
+  columns: COLUMNS.slice(0, 3),
+  emptyMessage: "No titles have been added to this shop yet.",
+  async load() { await delay(120); return { rows: [], total: 0 }; },
+});
+
+createDataGrid(document.getElementById("demo-nomatch"), {
+  namespace: "nom",
+  columns: COLUMNS.slice(0, 3),
+  filters: [FILTERS[0]],
+  async load() { await delay(120); return { rows: [], total: 0 }; },
+});
+
+// Echo the URL so the point of the component is visible without leaving the page.
+const echo = document.getElementById("urlecho");
+const paint = () => { echo.textContent = location.search || "(clean — every value is at its default)"; };
+paint();
+for (const type of ["popstate", "click", "input", "change", "keyup"]) {
+  addEventListener(type, () => setTimeout(paint, 60), true);
+}
+</script>
+</body>
+</html>

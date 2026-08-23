@@ -25,10 +25,26 @@ for (const component of selected(argv)) {
   const cfg = component.demoInline;
   if (!cfg) continue;
 
-  const source = readFileSync(join(component.dir, cfg.source), "utf8")
-    .replace(/^export default .*$/m, "")
-    .replace(/^export /gm, "")
-    .trimEnd();
+  /*
+    `source` may be one file or an ordered list. A list is concatenated in
+    dependency order and the cross-file `import`/`export` lines are stripped,
+    because once the modules share one scope those statements are both illegal
+    and unnecessary. Order matters: a module must appear after everything it
+    reads at load time.
+  */
+  const sources = Array.isArray(cfg.source) ? cfg.source : [cfg.source];
+  const source = sources
+    .map((rel) =>
+      readFileSync(join(component.dir, rel), "utf8")
+        // drop imports that resolve to a file we are also inlining
+        .replace(/^import\s+[\s\S]*?from\s+"\.[^"]*";\s*$/gm, "")
+        .replace(/^export\s+\{[^}]*\}\s*(from\s+"[^"]*")?;\s*$/gm, "")
+        .replace(/^export default .*$/m, "")
+        .replace(/^export /gm, "")
+        .trimEnd(),
+    )
+    .join("\n\n")
+    .replace(/\n{3,}/g, "\n\n");
 
   const target = join(component.dir, cfg.target);
   const html = readFileSync(target, "utf8");

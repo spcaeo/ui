@@ -14,9 +14,10 @@ step for the components themselves.
 
 ## Components
 
-|                                                                              | Component                                  | What it is                                                                                                                      |
-| ---------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| [![](docs/public/screenshots/folder-tabs/hero.png)](components/folder-tabs/) | **[Folder Tabs](components/folder-tabs/)** | A tab control where the active tab **is** the panel, not a highlighted button. Rebuilt from the Visual Basic 4 `SSTab` control. |
+|                                                                                | Component                                  | What it is                                                                                                                                               |
+| ------------------------------------------------------------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![](docs/public/screenshots/folder-tabs/hero.png)](components/folder-tabs/)   | **[Folder Tabs](components/folder-tabs/)** | A tab control where the active tab **is** the panel, not a highlighted button. Rebuilt from the Visual Basic 4 `SSTab` control.                          |
+| [![](docs/public/screenshots/data-grid/grid-light.png)](components/data-grid/) | **[Data Grid](components/data-grid/)**     | A listing grid whose **entire state lives in the URL** — search, filter, sort, page, selection. Shareable, bookmarkable, reload-safe. Zero dependencies. |
 
 More are coming. The tooling is component-agnostic — see
 [Adding a component](CONTRIBUTING.md#adding-a-component).

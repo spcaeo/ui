@@ -11,6 +11,7 @@
  * vanished, a focus that went off-screen, a page that scrolled itself — and
  * none of them would have been caught by asserting on a function's return value.
  */
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -24,6 +25,33 @@ const failures = [];
 const browser = await chromium.launch();
 
 for (const component of components) {
+  /*
+    A component may also ship `core.test.mjs` for logic that needs no browser —
+    URL parsing, validation, encoding. Running it here rather than in a separate
+    script means `npm test` really is the whole suite, and a contract regression
+    cannot hide behind a passing UI test.
+  */
+  const coreTest = join(component.dir, "core.test.mjs");
+  if (existsSync(coreTest)) {
+    console.log(`\n########## ${component.name} — core ##########`);
+    try {
+      const out = execFileSync(process.execPath, [coreTest], { encoding: "utf8" });
+      const summary = out
+        .trim()
+        .split("\n")
+        .filter((l) => /passed, .* failed/.test(l))
+        .pop();
+      const count = Number(summary?.match(/^(\d+) passed/)?.[1] ?? 0);
+      passed += count;
+      console.log(`  ${summary ?? "ran"}`);
+    } catch (error) {
+      failures.push(
+        `${component.name} core: ${(error.stdout ?? error.message).toString().trim().split("\n").slice(-3).join(" ")}`,
+      );
+      console.log(`  FAIL core tests`);
+    }
+  }
+
   const testFile = join(component.dir, "test.mjs");
   if (!existsSync(testFile)) {
     console.log(`\n${component.name}: no test.mjs, skipping`);
